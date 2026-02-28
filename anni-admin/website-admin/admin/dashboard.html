@@ -15,11 +15,6 @@
 <body>
 
 <!-- =========================
-     ROUTE PROTECTION PLACEHOLDER
-     (Handled in dashboard.js)
-========================= -->
-
-<!-- =========================
      TOP SLIDING LOADER
 ========================= -->
 <div id="topLoader" class="top-loader">
@@ -35,8 +30,6 @@
     <h2 class="logo">Anni Admin</h2>
 
     <nav>
-
-      <!-- Real Menu Items -->
       <div class="menu-item" data-section="overview">Overview</div>
       <div class="menu-item" data-section="products">Products</div>
       <div class="menu-item" data-section="orders">Orders</div>
@@ -44,15 +37,6 @@
       <div class="menu-item" data-section="analytics">Analytics</div>
       <div class="menu-item" data-section="chatbot">Chatbot</div>
       <div class="menu-item" data-section="system">System Settings</div>
-
-      <!-- Skeleton placeholders -->
-      <div class="nav-skeleton"></div>
-      <div class="nav-skeleton"></div>
-      <div class="nav-skeleton"></div>
-      <div class="nav-skeleton"></div>
-      <div class="nav-skeleton"></div>
-      <div class="nav-skeleton"></div>
-
     </nav>
   </aside>
 
@@ -67,9 +51,8 @@
       <button id="logoutBtn" class="btn-danger">Logout</button>
     </header>
 
-    <!-- Sections Wrapper -->
+    <!-- Sections -->
     <div class="sections-container">
-
       <section id="overview" class="section dashboard-card"></section>
       <section id="products" class="section dashboard-card"></section>
       <section id="orders" class="section dashboard-card"></section>
@@ -77,18 +60,19 @@
       <section id="analytics" class="section dashboard-card"></section>
       <section id="chatbot" class="section dashboard-card"></section>
       <section id="system" class="section dashboard-card"></section>
-
     </div>
 
   </main>
+</div>
 
-  <!-- =========================
+<!-- =========================
      SESSION WARNING MODAL
 ========================= -->
 <div id="sessionWarning" class="session-warning hidden">
   <div class="session-box">
     <h3>Session Expiring</h3>
-    <p>Your session will expire in 
+    <p>
+      Your session will expire in 
       <span id="countdown">60</span> seconds.
     </p>
     <button id="stayLoggedInBtn" class="btn-primary">
@@ -97,27 +81,33 @@
   </div>
 </div>
 
-</div>
 
+<!-- =========================
+     AUTH GUARD (MODULE)
+========================= -->
+<script type="module">
+  import { checkAdminAuth } from "./js/core/auth.js";
+  checkAdminAuth();
+</script>
 <!-- =========================
      CORE SCRIPTS
 ========================= -->
-<script src="js/core/loader.js"></script>
-<script src="js/core/transition.js"></script>
+<script src="js/core/loader.js" defer></script>
+<script src="js/core/transition.js" defer></script>
 
 <!-- =========================
      MODULE SCRIPTS
 ========================= -->
-<script src="js/modules/products.js"></script>
-<script src="js/modules/orders.js"></script>
-<script src="js/modules/employees.js"></script>
-<script src="js/modules/analytics.js"></script>
-<script src="js/modules/chatbot.js"></script>
+<script src="js/modules/products.js" defer></script>
+<script src="js/modules/orders.js" defer></script>
+<script src="js/modules/employees.js" defer></script>
+<script src="js/modules/analytics.js" defer></script>
+<script src="js/modules/chatbot.js" defer></script>
 
 <!-- =========================
      DASHBOARD CONTROLLER
 ========================= -->
-<script src="js/dashboard.js"></script>
+<script src="js/dashboard.js" defer></script>
 
 </body>
 </html>

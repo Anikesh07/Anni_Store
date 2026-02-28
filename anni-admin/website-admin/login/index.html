@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin | Anni Store</title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="/login/css/style.css">
 </head>
 <body>
-
 
 <!-- =========================
      LOGIN SKELETON LOADER
@@ -23,46 +24,58 @@
   </div>
 </div>
 
-  <!-- =========================
-       LOGIN CARD
-  ========================== -->
-  <div class="auth-container">
-    <div class="auth-card">
 
-      <h1 class="brand">Anni Store</h1>
-      <p class="subtitle" id="formTitle">Admin Login</p>
+<!-- =========================
+     LOGIN CONTAINER
+========================= -->
+<div id="loginContainer" class="auth-container hidden">
 
-      <form id="authForm">
+  <div class="auth-card">
 
-        <div class="input-group hidden" id="nameGroup">
-          <input type="text" id="name" placeholder="Full Name">
-        </div>
+    <h1 class="brand">Anni Store</h1>
+    <p class="subtitle" id="formTitle">Admin Login</p>
 
-        <div class="input-group">
-          <input type="email" id="email" placeholder="Email Address" required>
-        </div>
+    <form id="authForm">
 
-        <div class="input-group">
-          <input type="password" id="password" placeholder="Password" required>
-        </div>
+      <!-- Name (Signup Only) -->
+      <div class="input-group hidden" id="nameGroup">
+        <input type="text" id="name" placeholder="Full Name">
+      </div>
 
-        <button type="submit" id="submitBtn" class="auth-btn">
-          <span class="btn-text">LOGIN</span>
-          <span class="btn-loader hidden"></span>
-        </button>
+      <!-- Email -->
+      <div class="input-group">
+        <input type="email" id="email" placeholder="Email Address" required>
+      </div>
 
-      </form>
+      <!-- Password -->
+      <div class="input-group">
+        <input type="password" id="password" placeholder="Password" required>
+      </div>
 
-      <p id="errorMsg" class="error"></p>
+      <!-- Submit Button -->
+      <button type="submit" id="submitBtn" class="auth-btn">
+        <span class="btn-text">LOGIN</span>
+        <span class="btn-loader hidden"></span>
+      </button>
 
-      <p class="toggle-text">
-        <span id="toggleText">Don't have an account?</span>
-        <span id="toggleBtn" class="toggle-btn">Sign Up</span>
-      </p>
+    </form>
 
-    </div>
+    <!-- Error Message -->
+    <p id="errorMsg" class="error"></p>
+
+    <!-- Toggle -->
+    <p class="toggle-text">
+      <span id="toggleText">Don't have an account?</span>
+      <span id="toggleBtn" class="toggle-btn">Sign Up</span>
+    </p>
+
   </div>
+</div>
 
+
+<!-- =========================
+     FULL SCREEN LOADER
+========================= -->
 <div id="authLoaderOverlay" class="auth-loader-overlay hidden">
   <div class="anni-loader">
     <div class="anni-grid">
@@ -75,6 +88,9 @@
   </div>
 </div>
 
-  <script src="/login/js/login.js"></script>
+
+<!-- JS (IMPORTANT: use defer) -->
+<script src="/login/js/login.js" defer></script>
+
 </body>
 </html>

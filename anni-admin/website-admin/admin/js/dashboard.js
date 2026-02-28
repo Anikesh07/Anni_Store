@@ -1,133 +1,9 @@
 /* =========================================
-   DASHBOARD CONTROLLER
+   DASHBOARD CONTROLLER (UI ONLY)
+   Auth handled in auth.js
 ========================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
-
-  const token = localStorage.getItem("adminToken");
-
-  /* =========================================
-     FORCE LOGOUT (Central Control)
-  ========================================= */
-
-  function forceLogout(reason = "Session expired") {
-    console.warn("Auto logout:", reason);
-
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminName");
-    localStorage.removeItem("activeAdminSection");
-
-    window.location.replace("../login/index.html");
-  }
-
-  /* =========================================
-     ROUTE PROTECTION
-  ========================================= */
-
-  if (!token) {
-    forceLogout("No token found");
-    return;
-  }
-
-  let payload;
-
-  try {
-    payload = JSON.parse(atob(token.split(".")[1]));
-  } catch (err) {
-    forceLogout("Invalid token structure");
-    return;
-  }
-
-  /* =========================================
-     JWT EXPIRY AUTO LOGOUT
-  ========================================= */
-
-  if (payload.exp) {
-    const expiryTime = payload.exp * 1000;
-    const now = Date.now();
-    const remaining = expiryTime - now;
-
-    if (remaining <= 0) {
-      forceLogout("Token expired");
-      return;
-    }
-
-    setTimeout(() => {
-      forceLogout("Token expired");
-    }, remaining);
-  }
-
-/* =========================================
-   INACTIVITY AUTO LOGOUT WITH WARNING
-========================================= */
-
-const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
-const WARNING_TIME = 60 * 1000; // 60 seconds before logout
-
-let inactivityTimer;
-let warningTimer;
-let countdownInterval;
-
-const warningModal = document.getElementById("sessionWarning");
-const countdownEl = document.getElementById("countdown");
-const stayBtn = document.getElementById("stayLoggedInBtn");
-
-function startWarningCountdown() {
-  let seconds = 60;
-  countdownEl.textContent = seconds;
-
-  warningModal.classList.remove("hidden");
-  warningModal.classList.add("active");
-
-  countdownInterval = setInterval(() => {
-    seconds--;
-    countdownEl.textContent = seconds;
-
-    if (seconds <= 0) {
-      clearInterval(countdownInterval);
-      forceLogout("Session timeout");
-    }
-  }, 1000);
-}
-
-function resetInactivityTimer() {
-  clearTimeout(inactivityTimer);
-  clearTimeout(warningTimer);
-  clearInterval(countdownInterval);
-
-  warningModal.classList.remove("active");
-  warningModal.classList.add("hidden");
-
-  warningTimer = setTimeout(() => {
-    startWarningCountdown();
-  }, INACTIVITY_LIMIT - WARNING_TIME);
-
-  inactivityTimer = setTimeout(() => {
-    forceLogout("Inactive session timeout");
-  }, INACTIVITY_LIMIT);
-}
-
-["click", "mousemove", "keydown", "scroll"].forEach(event => {
-  document.addEventListener(event, resetInactivityTimer);
-});
-
-stayBtn?.addEventListener("click", () => {
-  resetInactivityTimer();
-});
-
-resetInactivityTimer();
-
-  /* =========================================
-     LOGOUT BUTTON
-  ========================================= */
-
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      forceLogout("Manual logout");
-    });
-  }
 
   /* =========================================
      INITIAL OVERVIEW CONTENT
@@ -162,7 +38,8 @@ resetInactivityTimer();
 
     isSwitching = true;
 
-    localStorage.setItem("activeAdminSection", sectionName);
+    // Store last active section in session
+    sessionStorage.setItem("activeAdminSection", sectionName);
 
     menuItems.forEach(item =>
       item.classList.remove("active-menu")
@@ -221,7 +98,7 @@ resetInactivityTimer();
      INITIAL LOAD
   ========================================= */
 
-  const savedSection = localStorage.getItem("activeAdminSection");
+  const savedSection = sessionStorage.getItem("activeAdminSection");
   const initialSection = savedSection || "overview";
 
   await activateSection(initialSection);
