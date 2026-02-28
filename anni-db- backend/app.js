@@ -3,8 +3,10 @@ const cors = require("cors");
 require("dotenv").config();
 
 const connectMongo = require("./config/db");
+
 const productRoutes = require("./routes/product.routes");
 const authRoutes = require("./routes/auth.routes");
+const employeeRoutes = require("./routes/employee.routes");
 
 const app = express();
 
@@ -12,9 +14,9 @@ const app = express();
    MIDDLEWARE
 ------------------------ */
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // MUST come before routes
 
-/* ✅ REQUIRED: Serve uploaded images */
+/* ✅ Serve uploaded images */
 app.use("/uploads", express.static("uploads"));
 
 /* -----------------------
@@ -36,7 +38,8 @@ app.get("/", (req, res) => {
    ROUTES
 ------------------------ */
 app.use("/products", productRoutes);
-app.use("/api/auth", authRoutes);   // ✅ moved here AFTER app initialization
+app.use("/api/auth", authRoutes);
+app.use("/api/employee", employeeRoutes); // moved here
 
 /* -----------------------
    ERROR HANDLER

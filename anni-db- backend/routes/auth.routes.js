@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const { protect, allowRoles } = require("../services/permission.middleware");
 const authService = require("../services/auth.service");
 const sendEmail = require("../utils/sendEmail");
 
@@ -69,5 +70,20 @@ router.post("/verify-otp", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
+/* ==============================
+   HR ONLY TEST ROUTE
+============================== */
+router.get(
+  "/hr-only-test",
+  protect,
+  allowRoles("HR"),
+  (req, res) => {
+    res.json({
+      message: "Welcome HR Department",
+      user: req.user
+    });
+  }
+);
 
 module.exports = router;
