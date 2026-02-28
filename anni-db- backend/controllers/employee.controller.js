@@ -69,3 +69,21 @@ exports.getEmployeeById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+/* ==========================================
+   GET OWN PROFILE
+========================================== */
+exports.getOwnProfile = async (user) => {
+  if (user.type !== "EMPLOYEE") {
+    throw new Error("Only employees can access this endpoint");
+  }
+
+  const employee = await Employee.findById(user.id)
+    .select("-password -otp");
+
+  if (!employee) {
+    throw new Error("Employee not found");
+  }
+
+  return employee;
+};

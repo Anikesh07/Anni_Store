@@ -33,6 +33,22 @@ router.get(
 );
 
 /* ==========================================
+   GET OWN PROFILE (EMPLOYEE SELF)
+========================================== */
+router.get(
+  "/me",
+  protect,
+  async (req, res) => {
+    try {
+      const employee = await employeeController.getOwnProfile(req.user);
+      res.json(employee);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+);
+
+/* ==========================================
    GET EMPLOYEE PROFILE BY ID
 ========================================== */
 router.get(
@@ -100,3 +116,4 @@ router.put(
 );
 
 module.exports = router;
+
