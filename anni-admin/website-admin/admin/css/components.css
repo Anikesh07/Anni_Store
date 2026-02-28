@@ -1,0 +1,203 @@
+/* =========================================================
+   CARD COMPONENT
+========================================================= */
+
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn-danger {
+  background: var(--danger);
+  border: none;
+  padding: 8px 15px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn-danger:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* =========================================================
+   TOP SLIDING LOADER
+========================================================= */
+
+.top-loader {
+  position: fixed;
+  top: -3px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  z-index: 9999;
+  transition: top 0.25s ease;
+}
+
+.top-loader.active {
+  top: 0;
+}
+
+.top-loader-bar {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    var(--accent),
+    var(--primary)
+  );
+  background-size: 200% 100%;
+  animation: loaderMove 1s linear infinite;
+}
+
+@keyframes loaderMove {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+/* =========================================================
+   NAVBAR SKELETON (THEME MATCHED)
+========================================================= */
+
+/* Hide real items while loading */
+.sidebar.loading .menu-item {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Show skeleton only during loading */
+.sidebar.loading .nav-skeleton {
+  display: block;
+}
+
+/* Skeleton style */
+.nav-skeleton {
+  display: none;
+  height: 18px;
+  margin: 18px 24px;
+  border-radius: 6px;
+
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.05) 75%
+  );
+
+  background-size: 200% 100%;
+  animation: shimmerDark 1.6s infinite linear;
+}
+
+/* Width variation for realism */
+.nav-skeleton:nth-of-type(8)  { width: 70%; }
+.nav-skeleton:nth-of-type(9)  { width: 85%; }
+.nav-skeleton:nth-of-type(10) { width: 75%; }
+.nav-skeleton:nth-of-type(11) { width: 80%; }
+.nav-skeleton:nth-of-type(12) { width: 65%; }
+.nav-skeleton:nth-of-type(13) { width: 90%; }
+
+/* Smooth fade-in when loading ends */
+.sidebar .menu-item {
+  transition: opacity 0.3s ease;
+}
+
+.sidebar:not(.loading) .menu-item {
+  opacity: 1;
+}
+
+/* =========================================================
+   DARK SHIMMER ANIMATION
+========================================================= */
+
+@keyframes shimmerDark {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+
+/* =========================
+   SESSION WARNING MODAL
+========================= */
+
+.session-warning {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s ease;
+}
+
+.session-warning.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.session-box {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  width: 320px;
+  animation: fadeInUp 0.3s ease;
+}
+
+.session-box h3 {
+  margin-bottom: 10px;
+  color: var(--primary-dark);
+}
+
+.session-box p {
+  margin-bottom: 20px;
+  color: var(--text-soft);
+}
+
+.btn-primary {
+  background: var(--primary);
+  border: none;
+  padding: 8px 16px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.hidden {
+  display: none;
+}

@@ -1,0 +1,292 @@
+:root {
+  --bg-main: #f6efe9;
+  --bg-header: #3b2f2f;
+  --bg-bot-msg: #ffffff;
+  --bg-user-msg: #d2b48c;
+  --text-dark: #3b2f2f;
+  --accent: #c19a6b;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* =================================================
+   FLOATING CHAT ICON (IMAGE ONLY – NO BG)
+   ================================================= */
+.chat-fab {
+  position: fixed;
+  bottom: 6px;
+  right: 6px;
+
+  width: 56px;
+  height: 56px;
+
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 10001;
+}
+
+/* Bot image */
+.chat-icon {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+
+  pointer-events: none;
+}
+
+/* =================================================
+   CHAT WRAPPER
+   ================================================= */
+.chat-wrapper {
+  position: fixed;
+  bottom: 80px;
+  right: 8px;
+
+  display: none;
+  z-index: 10002;
+}
+
+.chat-wrapper.show {
+  display: block;
+}
+
+/* =================================================
+   CHAT WIDGET
+   ================================================= */
+.chat-widget {
+  width: 360px;
+  height: 520px;
+  background: var(--bg-main);
+  border-radius: 18px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* =================================================
+   HEADER
+   ================================================= */
+.chat-header {
+  background: var(--bg-header);
+  color: #fff;
+  padding: 12px 16px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* =================================================
+   BOT INFO
+   ================================================= */
+.bot-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bot-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.bot-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.bot-status {
+  font-size: 12px;
+  color: #d0d0d0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #2ecc71;
+  border-radius: 50%;
+  animation: pulse 1.6s infinite;
+}
+
+.status-offline {
+  background: #e74c3c !important;
+  animation: none;
+}
+
+/* =================================================
+   CHAT BODY
+   ================================================= */
+.chat-body {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* =================================================
+   MESSAGE ROWS
+   ================================================= */
+.msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.msg-row.bot {
+  justify-content: flex-start;
+}
+
+.msg-row.user {
+  justify-content: flex-end;
+}
+
+/* =================================================
+   AVATARS
+   ================================================= */
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* =================================================
+   MESSAGE BUBBLES
+   ================================================= */
+.bot-msg,
+.user-msg {
+  max-width: 75%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: 14px;
+  animation: fadeIn 0.25s ease-in;
+  word-break: break-word;
+}
+
+.bot-msg {
+  background: var(--bg-bot-msg);
+  color: var(--text-dark);
+  border-top-left-radius: 6px;
+}
+
+.user-msg {
+  background: var(--bg-user-msg);
+  color: #fff;
+  border-top-right-radius: 6px;
+}
+
+/* =================================================
+   TYPING INDICATOR
+   ================================================= */
+.bot-msg.typing {
+  display: flex;
+  gap: 6px;
+}
+
+.bot-msg.typing span {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: blink 1.4s infinite both;
+}
+
+.bot-msg.typing span:nth-child(2) { animation-delay: 0.2s; }
+.bot-msg.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+/* =================================================
+   INPUT AREA
+   ================================================= */
+.chat-input {
+  display: flex;
+  padding: 10px;
+  background: #efe6dd;
+}
+
+.chat-input input {
+  flex: 1;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 12px;
+  outline: none;
+}
+
+.chat-input button {
+  background: var(--accent);
+  border: none;
+  margin-left: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* =================================================
+   QUICK ACTIONS
+   ================================================= */
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  background: #efe6dd;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.quick-actions button {
+  flex: 1 1 48%;
+  padding: 8px;
+  border-radius: 14px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* =================================================
+   ANIMATIONS
+   ================================================= */
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(46,204,113,.7); }
+  70%  { box-shadow: 0 0 0 6px rgba(46,204,113,0); }
+  100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
+}

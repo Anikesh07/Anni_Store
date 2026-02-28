@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Anni Store</title>
+  <link rel="stylesheet" href="/login/css/style.css">
+</head>
+<body>
+
+
+<!-- =========================
+     LOGIN SKELETON LOADER
+========================= -->
+<div id="loginSkeleton" class="login-skeleton">
+  <div class="skeleton-card">
+    <div class="sk-logo"></div>
+    <div class="sk-subtitle"></div>
+    <div class="sk-input"></div>
+    <div class="sk-input"></div>
+    <div class="sk-button"></div>
+    <div class="sk-text"></div>
+  </div>
+</div>
+
+  <!-- =========================
+       LOGIN CARD
+  ========================== -->
+  <div class="auth-container">
+    <div class="auth-card">
+
+      <h1 class="brand">Anni Store</h1>
+      <p class="subtitle" id="formTitle">Admin Login</p>
+
+      <form id="authForm">
+
+        <div class="input-group hidden" id="nameGroup">
+          <input type="text" id="name" placeholder="Full Name">
+        </div>
+
+        <div class="input-group">
+          <input type="email" id="email" placeholder="Email Address" required>
+        </div>
+
+        <div class="input-group">
+          <input type="password" id="password" placeholder="Password" required>
+        </div>
+
+        <button type="submit" id="submitBtn" class="auth-btn">
+          <span class="btn-text">LOGIN</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+
+      </form>
+
+      <p id="errorMsg" class="error"></p>
+
+      <p class="toggle-text">
+        <span id="toggleText">Don't have an account?</span>
+        <span id="toggleBtn" class="toggle-btn">Sign Up</span>
+      </p>
+
+    </div>
+  </div>
+
+<div id="authLoaderOverlay" class="auth-loader-overlay hidden">
+  <div class="anni-loader">
+    <div class="anni-grid">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <p class="anni-loading-text">Entering Dashboard</p>
+  </div>
+</div>
+
+  <script src="/login/js/login.js"></script>
+</body>
+</html>

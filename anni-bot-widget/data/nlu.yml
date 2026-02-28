@@ -1,0 +1,183 @@
+version: "3.1"
+
+nlu:
+
+# --------------------
+# GREETINGS
+# --------------------
+- intent: greet
+  examples: |
+    - hi
+    - hello
+    - hey
+    - good morning
+    - good evening
+    - hi there
+    - hello anni
+    - hey bot
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you
+    - see you later
+    - thanks bye
+    - exit
+
+# --------------------
+# PRODUCT PRICE
+# --------------------
+- intent: product_price
+  examples: |
+    - price of iphone
+    - how much is this shirt
+    - cost of bag
+    - price of samsung phone
+    - what is the price of this product
+    - tell me price of laptop
+    - iphone price
+
+# --------------------
+# PRODUCT STOCK
+# --------------------
+- intent: product_stock
+  examples: |
+    - is iphone available
+    - stock of shoes
+    - is this product in stock
+    - availability of laptop
+    - do you have this item
+    - is this item available now
+
+# --------------------
+# TOP PRODUCTS
+# --------------------
+- intent: top_products
+  examples: |
+    - top 5 bags
+    - best 3 phones
+    - show top electronics
+    - popular products
+    - top rated products
+    - trending items
+    - best products in electronics
+
+# --------------------
+# BEST PRODUCT (SMART)
+# --------------------
+- intent: best_product
+  examples: |
+    - best phone under 30000
+    - best laptop to buy
+    - which bag is best
+    - suggest best product
+    - best product for me
+    - best electronics item
+    - recommend a good phone
+
+# --------------------
+# COMPARE PRODUCTS
+# --------------------
+- intent: compare_products
+  examples: |
+    - compare iphone and samsung
+    - compare shoes and bags
+    - compare products
+    - which is better iphone or samsung
+    - compare two phones
+    - iphone vs samsung
+    - compare laptop and tablet
+
+# --------------------
+# DELIVERY
+# --------------------
+- intent: delivery_info
+  examples: |
+    - delivery time
+    - how long will delivery take
+    - when will my order arrive
+    - shipping time
+    - how many days for delivery
+
+# --------------------
+# RETURNS
+# --------------------
+- intent: return_policy
+  examples: |
+    - return policy
+    - can I return the product
+    - how to return an item
+    - return process
+    - refund policy
+
+# --------------------
+# PAYMENT
+# --------------------
+- intent: payment_methods
+  examples: |
+    - payment options
+    - do you accept cod
+    - can I pay using card
+    - payment methods available
+    - is cash on delivery available
+    - upi payment available
+
+# --------------------
+# SUPPORT
+# --------------------
+- intent: contact_support
+  examples: |
+    - contact support
+    - customer care
+    - talk to support
+    - help me
+    - I need support
+    - connect me to support
+
+# --------------------
+# BOT CAPABILITIES
+# --------------------
+- intent: bot_capabilities
+  examples: |
+    - what can you do
+    - how can you help me
+    - what services do you provide
+    - what all can you do
+    - how does this bot work
+
+# --------------------
+# OFFERS & WARRANTY (DOMAIN SAFE)
+# --------------------
+- intent: offers_discounts
+  examples: |
+    - any offers available
+    - discount on products
+    - current deals
+    - any sale going on
+
+- intent: warranty_check
+  examples: |
+    - warranty for this product
+    - does this item have warranty
+    - warranty details
+
+# --------------------
+# ACCOUNT HELP
+# --------------------
+- intent: account_help
+  examples: |
+    - account problem
+    - login issue
+    - cannot login
+    - help with my account
+
+# --------------------
+# FALLBACK
+# --------------------
+- intent: nlu_fallback
+  examples: |
+    - asdfghj
+    - qwerty
+    - blah blah
+    - I don’t know what to say

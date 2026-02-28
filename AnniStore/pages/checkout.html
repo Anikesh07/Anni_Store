@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Anni Store – Checkout</title>
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div id="topLoader"></div>
+
+<header class="topbar">
+  <div class="brand">Anni Store</div>
+</header>
+
+<div class="page checkout-page">
+
+  <h2>Delivery Address</h2>
+
+  <div class="form-box">
+    <input id="name" placeholder="Full name">
+    <input id="phone" placeholder="Mobile number">
+    <input id="address" placeholder="Full address">
+    <input id="city" placeholder="City">
+    <input id="pincode" placeholder="Pincode">
+  </div>
+
+  <h2 style="margin-top:25px">Payment Method</h2>
+
+  <div class="payment-box">
+    <label><input type="radio" name="pay" checked> Cash on Delivery</label><br>
+    <label><input type="radio" name="pay"> UPI</label><br>
+    <label><input type="radio" name="pay"> Card</label>
+  </div>
+
+  <button id="placeOrderBtn" class="checkout-btn">
+    Place Order
+  </button>
+
+</div>
+
+<script src="../js/loader.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/checkout.js"></script>
+
+</body>
+</html>

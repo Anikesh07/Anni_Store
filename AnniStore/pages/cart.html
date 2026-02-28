@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Anni Store – Cart</title>
+<link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+<div id="topLoader"></div>
+
+<header class="topbar">
+  <div class="brand">Anni Store</div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+  </div>
+</header>
+
+<div class="page cart-page">
+
+  <h2>Your Cart</h2>
+
+  <div id="cartList" class="cart-list"></div>
+
+  <div class="cart-summary">
+    <div class="summary-row">
+      <span>Total items</span>
+      <span id="itemCount">0</span>
+    </div>
+
+    <div class="summary-row">
+      <span>Total amount</span>
+      <span id="total">₹0</span>
+    </div>
+
+    <button id="checkoutBtn" class="checkout-btn">
+      Continue to Address & Payment
+    </button>
+  </div>
+
+</div>
+
+<script src="../js/loader.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/cart.js"></script>
+
+</body>
+</html>

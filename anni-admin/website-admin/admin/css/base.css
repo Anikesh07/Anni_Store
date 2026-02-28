@@ -1,0 +1,24 @@
+:root{
+  --bg-main:#f6f3ef;
+  --sidebar-bg:#3E362E;
+  --card-bg:#ffffff;
+  --primary:#865D36;
+  --primary-dark:#3E362E;
+  --accent:#AC8968;
+  --danger:#c2410c;
+  --text-main:#2c2c2c;
+  --text-soft:#7a6654;
+  --border-soft:#e4d8ce;
+  --shadow-soft:0 10px 25px rgba(0,0,0,.05);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body{
+  background:var(--bg-main);
+}

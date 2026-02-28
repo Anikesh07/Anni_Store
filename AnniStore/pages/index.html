@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Anni Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body data-bot="enabled">
+
+  <!-- TOP LOADER -->
+  <div id="topLoader"></div>
+
+  <!-- NETWORK ERROR MESSAGE -->
+  <div id="netError" class="net-error hidden">
+    Oops… sorry, network issue
+  </div>
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <div class="brand">Anni Store</div>
+
+    <div class="search-box">
+      <input id="searchInput" placeholder="Search products...">
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="wishlist.html">
+        Wishlist ❤️ <span id="wishCount" class="badge">0</span>
+      </a>
+      <a href="cart.html">
+        Cart 🛒 <span id="cartCount" class="badge">0</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div class="main-layout">
+    <main>
+
+      <div id="categoryBar" class="category-bar"></div>
+
+      <h2 class="section-title">Trending Items</h2>
+
+      <div id="productGrid" class="product-grid"></div>
+
+    </main>
+  </div>
+
+  <!-- ================= anni-bot CHAT (CONDITIONAL LOAD) ================= -->
+
+<script>
+  if (document.body.dataset.bot === "enabled") {
+    const iframe = document.createElement("iframe");
+
+    iframe.src = "../../anni-bot-widget/index.html";
+    iframe.id = "anniBotFrame";
+    iframe.title = "anni-bot";
+
+    iframe.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border: none;
+      z-index: 9999;
+      background: transparent;
+      overflow: hidden;
+    `;
+
+    document.body.appendChild(iframe);
+    window.__anniBotFrame = iframe;
+  }
+
+  window.addEventListener("message", (event) => {
+    const iframe = window.__anniBotFrame;
+    if (!iframe || !event.data) return;
+
+    if (event.data === "ANNI_BOT_OPEN") {
+      iframe.style.width = "380px";
+      iframe.style.height = "600px";
+    }
+
+    if (event.data === "ANNI_BOT_CLOSE") {
+      iframe.style.width = "60px";
+      iframe.style.height = "60px";
+    }
+  });
+</script>
+
+  <!-- SCRIPTS (ORDER MATTERS) -->
+  <script src="../js/loader.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/ui.js"></script>
+
+</body>
+</html>

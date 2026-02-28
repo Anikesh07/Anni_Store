@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>anni-bot</title>
+  <link rel="stylesheet" href="anni-bot.css" />
+</head>
+<body>
+
+<!-- ================= FLOATING CHAT BUTTON ================= -->
+<button
+  class="chat-fab"
+  onclick="toggleChat()"
+  aria-label="Open chat"
+>
+  <img
+    src="./avatars/anni-bot.png"
+    alt="Anni Bot"
+    class="chat-icon"
+  />
+</button>
+
+<!-- ================= CHAT WIDGET ================= -->
+<div class="chat-wrapper" id="chatWrapper" aria-live="polite">
+  <div class="chat-widget">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="bot-info">
+        <span class="bot-icon">✨</span>
+        <div class="bot-text">
+          <div class="bot-name">anni-bot</div>
+          <div class="bot-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Checking…</span>
+          </div>
+        </div>
+      </div>
+
+      <button
+        class="close-btn"
+        onclick="toggleChat()"
+        aria-label="Close chat"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-body" id="chatBody">
+      <div class="msg-row bot">
+        <img
+          src="./avatars/anni-bot.png"
+          alt="anni-bot"
+          class="avatar"
+        />
+        <div class="bot-msg">
+          Hi 👋 I am <b>anni-bot</b>.<br />
+          I can help you with products, orders, and offers.
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions" id="quickActions">
+      <button onclick="quickSend('check order status')">📦 Order Status</button>
+      <button onclick="quickSend('check warranty')">🛡️ Warranty</button>
+      <button onclick="quickSend('talk to customer support')">👨‍💼 Support</button>
+      <button onclick="quickSend('contact support')">📧 Email</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input">
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Type your message..."
+        autocomplete="off"
+        onkeydown="if(event.key === 'Enter'){ sendMessage(); }"
+      />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Sounds -->
+<audio id="sendSound" src="./sounds/send.mp3" preload="auto"></audio>
+<audio id="receiveSound" src="./sounds/receive.mp3" preload="auto"></audio>
+
+<!-- Script -->
+<script src="anni-bot.js"></script>
+</body>
+</html>

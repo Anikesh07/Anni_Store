@@ -1,0 +1,28 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-budget_amount",
+      "2": "I-budget_amount",
+      "3": "L-budget_amount",
+      "4": "U-budget_amount",
+      "5": "B-product_name",
+      "6": "I-product_name",
+      "7": "L-product_name",
+      "8": "U-product_name",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-budget_amount": 1,
+      "I-budget_amount": 2,
+      "L-budget_amount": 3,
+      "U-budget_amount": 4,
+      "B-product_name": 5,
+      "I-product_name": 6,
+      "L-product_name": 7,
+      "U-product_name": 8,
+      "O": 0
+    },
+    "num_tags": 9
+  }
+]

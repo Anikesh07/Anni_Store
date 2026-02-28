@@ -1,0 +1,107 @@
+version: "3.1"
+
+stories:
+
+# --------------------
+# BASIC GREETING
+# --------------------
+- story: greet user
+  steps:
+    - intent: greet
+    - action: utter_greet
+
+# --------------------
+# PRODUCT PRICE
+# --------------------
+- story: product price query
+  steps:
+    - intent: product_price
+    - action: action_product_price
+
+# --------------------
+# PRODUCT STOCK
+# --------------------
+- story: product stock query
+  steps:
+    - intent: product_stock
+    - action: action_product_stock
+
+# --------------------
+# TOP PRODUCTS
+# --------------------
+- story: top products query
+  steps:
+    - intent: top_products
+    - action: action_top_products
+
+# --------------------
+# BEST PRODUCT
+# --------------------
+- story: best product query
+  steps:
+    - intent: best_product
+    - action: action_best_product
+
+# --------------------
+# COMPARE PRODUCTS
+# --------------------
+- story: compare products
+  steps:
+    - intent: compare_products
+    - action: action_compare_products
+
+# --------------------
+# ORDER STATUS
+# --------------------
+- story: order status
+  steps:
+    - intent: order_status
+    - action: utter_order_status
+
+# --------------------
+# DELIVERY INFO
+# --------------------
+- story: delivery info
+  steps:
+    - intent: delivery_info
+    - action: utter_delivery_info
+
+# --------------------
+# RETURN POLICY
+# --------------------
+- story: return policy
+  steps:
+    - intent: return_policy
+    - action: utter_return_policy
+
+# --------------------
+# PAYMENT METHODS
+# --------------------
+- story: payment methods
+  steps:
+    - intent: payment_methods
+    - action: utter_payment_methods
+
+# --------------------
+# CONTACT SUPPORT
+# --------------------
+- story: contact support
+  steps:
+    - intent: contact_support
+    - action: utter_contact_support
+
+# --------------------
+# BOT CAPABILITIES
+# --------------------
+- story: bot capabilities
+  steps:
+    - intent: bot_capabilities
+    - action: utter_bot_capabilities
+
+# --------------------
+# FALLBACK
+# --------------------
+- story: fallback
+  steps:
+    - intent: nlu_fallback
+    - action: utter_fallback

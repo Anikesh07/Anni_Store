@@ -1,0 +1,91 @@
+version: "3.1"
+
+rules:
+
+# --------------------
+# BASIC CONVERSATION
+# --------------------
+- rule: greet
+  steps:
+    - intent: greet
+    - action: utter_greet
+
+- rule: goodbye
+  steps:
+    - intent: goodbye
+    - action: utter_goodbye
+
+# --------------------
+# PRODUCT QUERIES
+# --------------------
+- rule: product price
+  steps:
+    - intent: product_price
+    - action: action_product_price
+
+- rule: product stock
+  steps:
+    - intent: product_stock
+    - action: action_product_stock
+
+- rule: top products
+  steps:
+    - intent: top_products
+    - action: action_top_products
+
+- rule: best product
+  steps:
+    - intent: best_product
+    - action: action_best_product
+
+- rule: compare products
+  steps:
+    - intent: compare_products
+    - action: action_compare_products
+
+# --------------------
+# ORDER & DELIVERY
+# --------------------
+- rule: order status
+  steps:
+    - intent: order_status
+    - action: utter_order_status
+
+- rule: delivery info
+  steps:
+    - intent: delivery_info
+    - action: utter_delivery_info
+
+- rule: return policy
+  steps:
+    - intent: return_policy
+    - action: utter_return_policy
+
+# --------------------
+# PAYMENTS & SUPPORT
+# --------------------
+- rule: payment methods
+  steps:
+    - intent: payment_methods
+    - action: utter_payment_methods
+
+- rule: contact support
+  steps:
+    - intent: contact_support
+    - action: utter_contact_support
+
+# --------------------
+# BOT INFO
+# --------------------
+- rule: bot capabilities
+  steps:
+    - intent: bot_capabilities
+    - action: utter_bot_capabilities
+
+# --------------------
+# FALLBACK (VERY IMPORTANT)
+# --------------------
+- rule: fallback rule
+  steps:
+    - intent: nlu_fallback
+    - action: utter_fallback

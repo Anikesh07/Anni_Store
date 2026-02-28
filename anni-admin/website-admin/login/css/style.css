@@ -1,0 +1,319 @@
+/* =========================================================
+   ROOT THEME
+========================================================= */
+
+:root{
+  --bg-main:#A69080;
+  --card-bg:#ffffff;
+
+  --primary:#865D36;
+  --primary-dark:#3E362E;
+  --accent:#AC8968;
+  --danger:#c2410c;
+
+  --text-main:#3E362E;
+  --text-soft:#7a6654;
+
+  --border-soft:#e4d8ce;
+  --shadow-soft:0 14px 32px rgba(62,54,46,.18);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Segoe UI", sans-serif;
+}
+
+body{
+  background:var(--bg-main);
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* =========================================================
+   LOGIN CARD
+========================================================= */
+
+.auth-container{
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
+.auth-card{
+  background:var(--card-bg);
+  width:380px;
+  padding:40px;
+  border-radius:14px;
+  box-shadow:var(--shadow-soft);
+  text-align:center;
+  transition:opacity 0.4s ease;
+}
+
+.brand{
+  color:var(--primary-dark);
+  margin-bottom:8px;
+}
+
+.subtitle{
+  color:var(--text-soft);
+  margin-bottom:30px;
+}
+
+.input-group{
+  margin-bottom:18px;
+}
+
+input{
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border-soft);
+  border-radius:8px;
+  font-size:14px;
+  outline:none;
+  transition:0.2s ease;
+}
+
+input:focus{
+  border-color:var(--primary);
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.auth-btn{
+  width:100%;
+  padding:12px;
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.auth-btn:hover{
+  background:var(--primary-dark);
+}
+
+.auth-btn:disabled{
+  opacity:0.7;
+  cursor:not-allowed;
+}
+
+/* Button spinner */
+
+.btn-loader{
+  width:16px;
+  height:16px;
+  border:2px solid rgba(255,255,255,0.6);
+  border-top:2px solid #ffffff;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+
+@keyframes spin{
+  100%{ transform:rotate(360deg); }
+}
+
+.hidden{
+  display:none;
+}
+
+/* =========================================================
+   ERROR + TOGGLE
+========================================================= */
+
+.error{
+  margin-top:15px;
+  font-size:14px;
+  color:var(--danger);
+}
+
+.toggle-text{
+  margin-top:20px;
+  font-size:14px;
+  color:var(--text-soft);
+}
+
+.toggle-btn{
+  margin-left:5px;
+  color:var(--primary);
+  font-weight:600;
+  cursor:pointer;
+}
+
+.toggle-btn:hover{
+  text-decoration:underline;
+}
+
+/* =========================================================
+   ANNI SIGNATURE LOADER – DARK LUXURY
+========================================================= */
+
+.auth-loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: #2F2924; /* Deep espresso */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease;
+}
+
+.auth-loader-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Loader Container */
+
+.anni-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+/* Animated Grid */
+
+.anni-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 28px);
+  grid-gap: 20px;
+}
+
+.anni-grid span {
+  width: 28px;
+  height: 28px;
+  background: #865D36;
+  border-radius: 8px;
+  animation: anniPulse 1.2s ease-in-out infinite;
+}
+
+/* Stagger timing */
+
+.anni-grid span:nth-child(1) { animation-delay: 0s; }
+.anni-grid span:nth-child(2) { animation-delay: 0.15s; }
+.anni-grid span:nth-child(3) { animation-delay: 0.3s; }
+.anni-grid span:nth-child(4) { animation-delay: 0.45s; }
+
+/* Pulse Animation */
+
+@keyframes anniPulse {
+  0% {
+    transform: scale(1);
+    background: #5A3E28;
+  }
+  50% {
+    transform: scale(1.5);
+    background: #E0A96D;
+  }
+  100% {
+    transform: scale(1);
+    background: #5A3E28;
+  }
+}
+
+/* Loading Text */
+
+.anni-loading-text {
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  color: #F3E9DC; /* soft ivory */
+  opacity: 0.85;
+  animation: fadeText 1.8s ease-in-out infinite;
+}
+
+@keyframes fadeText {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* =========================
+   LOGIN SKELETON
+========================= */
+
+.login-skeleton {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.skeleton-card {
+  width: 380px;
+  padding: 40px;
+  background: var(--card-bg);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+}
+
+.sk-logo,
+.sk-subtitle,
+.sk-input,
+.sk-button,
+.sk-text {
+  background: linear-gradient(
+    90deg,
+    #e8e2db 25%,
+    #f3ede7 50%,
+    #e8e2db 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+
+.sk-logo {
+  height: 28px;
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+.sk-subtitle {
+  height: 14px;
+  width: 40%;
+  margin-bottom: 30px;
+}
+
+.sk-input {
+  height: 44px;
+}
+
+.sk-button {
+  height: 44px;
+  border-radius: 8px;
+}
+
+.sk-text {
+  height: 14px;
+  width: 50%;
+  margin: 20px auto 0;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Hide utility */
+.hidden {
+  display: none;
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Product | Anni Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+<div id="topLoader"></div>
+
+<!-- ================= TOP BAR ================= -->
+<header class="topbar">
+  <div class="brand">Anni Store</div>
+
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="wishlist.html">
+      Wishlist ❤️ <span class="badge" id="wishCount">0</span>
+    </a>
+    <a href="cart.html">
+      Cart 🛒 <span class="badge" id="cartCount">0</span>
+    </a>
+  </nav>
+</header>
+
+<!-- ================= PRODUCT PAGE ================= -->
+<main class="product-page">
+
+  <div class="product-container">
+
+    <!-- ===== MAIN PRODUCT SECTION ===== -->
+    <section class="product-main">
+
+      <!-- LEFT: IMAGE -->
+      <div class="product-left">
+        <img id="productImage" alt="Product image">
+      </div>
+
+      <!-- RIGHT: DETAILS -->
+      <div class="product-right">
+
+        <h1 id="productTitle">Loading product…</h1>
+
+        <div class="product-rating" id="productRating">
+          Loading rating…
+        </div>
+
+        <div class="product-price" id="productPrice"></div>
+
+        <div class="product-actions">
+          <button id="addToCartBtn" class="add-btn">Add to Cart</button>
+          <button id="buyNowBtn" class="buy-btn">Buy Now</button>
+          <button id="wishlistBtn" class="wishlist-btn">🤍 Wishlist</button>
+        </div>
+
+        <div class="product-highlights" id="productHighlights"></div>
+
+        <div class="product-description">
+          <h3>Product Description</h3>
+          <p id="productDescription"></p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== RELATED PRODUCTS ===== -->
+    <section class="related-section">
+      <h2>Related Products</h2>
+      <div class="product-grid" id="relatedProducts"></div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ================= anni-bot CHAT (ONLY ON THIS PAGE) ================= -->
+<<script>
+  if (document.body.dataset.bot === "enabled") {
+    const iframe = document.createElement("iframe");
+
+    iframe.src = "../../anni-bot-widget/index.html";
+    iframe.id = "anniBotFrame";
+    iframe.title = "anni-bot";
+
+    iframe.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border: none;
+      z-index: 9999;
+      background: transparent;
+      overflow: hidden;
+    `;
+
+    document.body.appendChild(iframe);
+    window.__anniBotFrame = iframe;
+  }
+
+  window.addEventListener("message", (event) => {
+    const iframe = window.__anniBotFrame;
+    if (!iframe || !event.data) return;
+
+    if (event.data === "ANNI_BOT_OPEN") {
+      iframe.style.width = "380px";
+      iframe.style.height = "600px";
+    }
+
+    if (event.data === "ANNI_BOT_CLOSE") {
+      iframe.style.width = "60px";
+      iframe.style.height = "60px";
+    }
+  });
+</script>
+
+
+
+<!-- ================= SCRIPTS ================= -->
+<script src="../js/loader.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/main.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/product.js"></script>
+
+</body>
+</html>

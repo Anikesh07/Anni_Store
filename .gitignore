@@ -1,0 +1,110 @@
+# ----------------------------------------
+# Dependencies
+# ----------------------------------------
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# ----------------------------------------
+# Python artifacts
+# ----------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+.python-version
+*.egg-info/
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# ----------------------------------------
+# Configuration & Credentials (sensitive data)
+# ----------------------------------------
+.env
+.env.local
+.env.*.local
+credentials.yml
+config.yml
+domain.yml
+endpoints.yml
+
+# ----------------------------------------
+# Uploaded files & user-generated content
+# ----------------------------------------
+uploads/
+/anni-db/uploads/
+
+# ----------------------------------------
+# IDE & Editor
+# ----------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ----------------------------------------
+# OS-specific files
+# ----------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----------------------------------------
+# Logs
+# ----------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ----------------------------------------
+# Large files & Models
+# ----------------------------------------
+models/
+*.pth
+*.h5
+*.pkl
+
+# ----------------------------------------
+# Temporary files
+# ----------------------------------------
+*.tmp
+temp/
+tmp/
+
+# ----------------------------------------
+# Build outputs
+# ----------------------------------------
+dist/
+build/
+.next/
+out/
+
+# ----------------------------------------
+# Testing
+# ----------------------------------------
+coverage/
+.nyc_output/
+
+# ----------------------------------------
+# Miscellaneous
+# ----------------------------------------
+startup.txt

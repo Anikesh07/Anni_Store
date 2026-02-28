@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Welcome | Anni Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #2f3e46, #1b2a32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: system-ui, sans-serif;
+    overflow: hidden;
+  }
+
+  .intro {
+    text-align: center;
+  }
+
+  .logo {
+    font-size: 96px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    position: relative;
+  }
+
+  .logo::after {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border: 2px solid rgba(255,255,255,0.6);
+    animation: draw 2s linear infinite;
+  }
+
+  @keyframes draw {
+    0% { clip-path: inset(0 100% 100% 0); }
+    25% { clip-path: inset(0 0 100% 0); }
+    50% { clip-path: inset(0 0 0 0); }
+    75% { clip-path: inset(100% 0 0 0); }
+    100% { clip-path: inset(0 100% 100% 0); }
+  }
+
+  .name {
+    margin-top: 12px;
+    letter-spacing: 4px;
+    opacity: .85;
+  }
+
+  .status {
+    margin-top: 24px;
+    font-size: 14px;
+    opacity: .8;
+  }
+
+  .error {
+    color: #ffb4b4;
+  }
+</style>
+</head>
+
+<body>
+  <div class="intro">
+    <div class="logo">A</div>
+    <div class="name">ANNI</div>
+    <div id="status" class="status">Loading store…</div>
+  </div>
+
+  <script src="../js/loader.js"></script>
+</body>
+</html>

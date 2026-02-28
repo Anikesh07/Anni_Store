@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Anni Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/modules.css">
+</head>
+
+<body>
+
+<!-- =========================
+     ROUTE PROTECTION PLACEHOLDER
+     (Handled in dashboard.js)
+========================= -->
+
+<!-- =========================
+     TOP SLIDING LOADER
+========================= -->
+<div id="topLoader" class="top-loader">
+  <div class="top-loader-bar"></div>
+</div>
+
+<div class="layout dashboard-wrapper">
+
+  <!-- =========================
+       SIDEBAR
+  ========================== -->
+  <aside class="sidebar loading">
+    <h2 class="logo">Anni Admin</h2>
+
+    <nav>
+
+      <!-- Real Menu Items -->
+      <div class="menu-item" data-section="overview">Overview</div>
+      <div class="menu-item" data-section="products">Products</div>
+      <div class="menu-item" data-section="orders">Orders</div>
+      <div class="menu-item" data-section="employees">Employees</div>
+      <div class="menu-item" data-section="analytics">Analytics</div>
+      <div class="menu-item" data-section="chatbot">Chatbot</div>
+      <div class="menu-item" data-section="system">System Settings</div>
+
+      <!-- Skeleton placeholders -->
+      <div class="nav-skeleton"></div>
+      <div class="nav-skeleton"></div>
+      <div class="nav-skeleton"></div>
+      <div class="nav-skeleton"></div>
+      <div class="nav-skeleton"></div>
+      <div class="nav-skeleton"></div>
+
+    </nav>
+  </aside>
+
+  <!-- =========================
+       MAIN CONTENT
+  ========================== -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <header class="topbar dashboard-card">
+      <div id="welcomeText"></div>
+      <button id="logoutBtn" class="btn-danger">Logout</button>
+    </header>
+
+    <!-- Sections Wrapper -->
+    <div class="sections-container">
+
+      <section id="overview" class="section dashboard-card"></section>
+      <section id="products" class="section dashboard-card"></section>
+      <section id="orders" class="section dashboard-card"></section>
+      <section id="employees" class="section dashboard-card"></section>
+      <section id="analytics" class="section dashboard-card"></section>
+      <section id="chatbot" class="section dashboard-card"></section>
+      <section id="system" class="section dashboard-card"></section>
+
+    </div>
+
+  </main>
+
+  <!-- =========================
+     SESSION WARNING MODAL
+========================= -->
+<div id="sessionWarning" class="session-warning hidden">
+  <div class="session-box">
+    <h3>Session Expiring</h3>
+    <p>Your session will expire in 
+      <span id="countdown">60</span> seconds.
+    </p>
+    <button id="stayLoggedInBtn" class="btn-primary">
+      Stay Logged In
+    </button>
+  </div>
+</div>
+
+</div>
+
+<!-- =========================
+     CORE SCRIPTS
+========================= -->
+<script src="js/core/loader.js"></script>
+<script src="js/core/transition.js"></script>
+
+<!-- =========================
+     MODULE SCRIPTS
+========================= -->
+<script src="js/modules/products.js"></script>
+<script src="js/modules/orders.js"></script>
+<script src="js/modules/employees.js"></script>
+<script src="js/modules/analytics.js"></script>
+<script src="js/modules/chatbot.js"></script>
+
+<!-- =========================
+     DASHBOARD CONTROLLER
+========================= -->
+<script src="js/dashboard.js"></script>
+
+</body>
+</html>
