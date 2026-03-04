@@ -4,26 +4,63 @@ const router = express.Router();
 const { protect, allowRoles } = require("../services/permission.middleware");
 const leaveController = require("../controllers/leave.controller");
 
-/* APPLY LEAVE */
-router.post("/apply", protect, leaveController.applyLeave);
+/* ==========================================
+   APPLY LEAVE (EMPLOYEE)
+========================================== */
+router.post(
+  "/apply",
+  protect,
+  allowRoles("EMPLOYEE", "MANAGER", "HR", "COMPANY_OWNER"),
+  leaveController.applyLeave
+);
 
-/* MY LEAVES */
-router.get("/my", protect, leaveController.getMyLeaves);
+/* ==========================================
+   GET MY LEAVES
+========================================== */
+router.get(
+  "/my",
+  protect,
+  leaveController.getMyLeaves
+);
 
-/* HR VIEW ALL */
+/* ==========================================
+   MANAGER: VIEW TEAM LEAVE REQUESTS
+========================================== */
+router.get(
+  "/team",
+  protect,
+  allowRoles("MANAGER", "HR", "COMPANY_OWNER"),
+  leaveController.getTeamLeaves
+);
+
+/* ==========================================
+   MANAGER: APPROVE / REJECT LEAVE
+========================================== */
+router.put(
+  "/review/:id",
+  protect,
+  allowRoles("MANAGER", "HR", "COMPANY_OWNER"),
+  leaveController.reviewLeave
+);
+
+/* ==========================================
+   HR / OWNER: VIEW ALL COMPANY LEAVES
+========================================== */
 router.get(
   "/all",
   protect,
-  allowRoles("HR", "CEO"),
+  allowRoles("HR", "COMPANY_OWNER"),
   leaveController.getAllLeaves
 );
 
-/* HR APPROVE / REJECT */
+/* ==========================================
+   HR OVERRIDE (OPTIONAL)
+========================================== */
 router.put(
-  "/update-status/:id",
+  "/override/:id",
   protect,
-  allowRoles("HR", "CEO"),
-  leaveController.updateLeaveStatus
+  allowRoles("HR", "COMPANY_OWNER"),
+  leaveController.overrideLeaveStatus
 );
 
 module.exports = router;

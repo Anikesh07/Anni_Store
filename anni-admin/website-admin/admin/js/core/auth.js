@@ -13,7 +13,7 @@ let countdownInterval;
    MAIN AUTH CHECK (RUN ON LOAD)
 ========================================== */
 
-export function checkAdminAuth() {
+function checkAdminAuth() {
 
   const token = sessionStorage.getItem("adminToken");
 
@@ -127,7 +127,7 @@ function startInactivitySystem() {
    LOGOUT
 ========================================== */
 
-export function forceLogout(reason = "Session ended") {
+function forceLogout(reason = "Session ended") {
   console.warn(reason);
 
   sessionStorage.removeItem("adminToken");

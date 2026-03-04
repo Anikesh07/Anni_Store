@@ -6,7 +6,7 @@
  *   - Search
  *   - Filter
  *
- * Protected (website_admin only):
+ * Protected:
  *   - Create product
  *   - Update product
  *   - Delete product
@@ -18,8 +18,7 @@ const service = require("../services/product.service");
 const multer = require("multer");
 const path = require("path");
 
-const authMiddleware = require("../services/auth.middleware");
-const roleMiddleware = require("../services/role.middleware");
+const { protect } = require("../services/auth.middleware");
 
 /* =====================================================
    IMAGE UPLOAD CONFIGURATION (PNG ONLY)
@@ -47,16 +46,9 @@ const upload = multer({
 });
 
 /* =====================================================
-   PUBLIC ROUTES (Accessible by everyone)
+   PUBLIC ROUTES
 ===================================================== */
 
-/**
- * GET /products
- * Supports:
- *  - pagination
- *  - category filter
- *  - keyword search
- */
 router.get("/", async (req, res) => {
   try {
     const { page, limit, category, q } = req.query;
@@ -74,9 +66,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-/**
- * GET /products/category/:category
- */
 router.get("/category/:category", async (req, res) => {
   try {
     const products = await service.getByCategory(req.params.category);
@@ -86,9 +75,6 @@ router.get("/category/:category", async (req, res) => {
   }
 });
 
-/**
- * GET /products/search?q=iphone
- */
 router.get("/search", async (req, res) => {
   try {
     const products = await service.searchProducts(req.query.q || "");
@@ -98,9 +84,6 @@ router.get("/search", async (req, res) => {
   }
 });
 
-/**
- * GET /products/top
- */
 router.get("/top", async (req, res) => {
   try {
     const products = await service.getTopProducts({
@@ -116,9 +99,6 @@ router.get("/top", async (req, res) => {
   }
 });
 
-/**
- * GET /products/best
- */
 router.get("/best", async (req, res) => {
   try {
     const product = await service.getBestProduct({
@@ -132,9 +112,6 @@ router.get("/best", async (req, res) => {
   }
 });
 
-/**
- * GET /products/:id
- */
 router.get("/:id", async (req, res) => {
   try {
     const product = await service.getProductById(req.params.id);
@@ -149,17 +126,12 @@ router.get("/:id", async (req, res) => {
 });
 
 /* =====================================================
-   ADMIN ROUTES (Protected - website_admin only)
+   PROTECTED ROUTES (Auth Only For Now)
 ===================================================== */
 
-/**
- * POST /products
- * Create new product
- */
 router.post(
   "/",
-  authMiddleware,
-  roleMiddleware(["website_admin"]),
+  protect,
   upload.single("image"),
   async (req, res) => {
     try {
@@ -178,14 +150,9 @@ router.post(
   }
 );
 
-/**
- * PUT /products/:id
- * Update existing product
- */
 router.put(
   "/:id",
-  authMiddleware,
-  roleMiddleware(["website_admin"]),
+  protect,
   upload.single("image"),
   async (req, res) => {
     try {
@@ -207,14 +174,9 @@ router.put(
   }
 );
 
-/**
- * DELETE /products/:id
- * Remove product
- */
 router.delete(
   "/:id",
-  authMiddleware,
-  roleMiddleware(["website_admin"]),
+  protect,
   async (req, res) => {
     try {
       const product = await service.deleteProduct(req.params.id);

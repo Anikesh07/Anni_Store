@@ -10,6 +10,9 @@ const employeeRoutes = require("./routes/employee.routes");
 const leaveRoutes = require("./routes/leave.routes");
 const attendanceRoutes = require("./routes/attendance.routes");
 const payrollRoutes = require("./routes/payroll.routes");
+const companyRoutes = require("./routes/company.routes");
+const payrollRoutes = require("./routes/payroll.routes");
+
 
 const app = express();
 
@@ -45,6 +48,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/employee", employeeRoutes);
 app.use("/api/leave", leaveRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/payroll", payrollRoutes);
+app.use("/api/company", companyRoutes);
 app.use("/api/payroll", payrollRoutes);
 
 /* -----------------------
