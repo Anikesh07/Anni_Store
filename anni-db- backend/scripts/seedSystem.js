@@ -11,9 +11,9 @@ async function seedSystem() {
 
   console.log("🌱 Running system seed...");
 
-  /* ===============================
-     SUPER ADMIN (ALWAYS EXISTS)
-  =============================== */
+  /* =====================================
+     SUPER ADMIN (ALWAYS ENSURED)
+  ===================================== */
 
   const adminEmail = "anni123@gmail.com";
   const adminPassword = "Anni123";
@@ -43,17 +43,19 @@ async function seedSystem() {
     console.log("SUPER_ADMIN already exists");
   }
 
-  /* ===============================
+  /* =====================================
      DEFAULT COMPANY
-  =============================== */
+  ===================================== */
 
-  let company = await Company.findOne({ name: "Anni Systems" });
+  let company = await Company.findOne({ slug: "annisystems" });
 
   if (!company) {
 
     company = await Company.create({
       name: "Anni Systems",
-      subscriptionPlan: "FREE"
+      slug: "annisystems",
+      subscriptionPlan: "FREE",
+      status: "ACTIVE"
     });
 
     await CompanySettings.create({
@@ -63,11 +65,11 @@ async function seedSystem() {
     console.log("✅ Default company created");
   }
 
-  /* ===============================
-     DEPARTMENTS
-  =============================== */
+  /* =====================================
+     DEFAULT DEPARTMENTS
+  ===================================== */
 
-  const departments = ["HR","Engineering","Sales","Finance"];
+  const departments = ["HR", "Engineering", "Sales", "Finance"];
 
   for (const dept of departments) {
 
@@ -87,9 +89,9 @@ async function seedSystem() {
     }
   }
 
-  /* ===============================
+  /* =====================================
      OWNER EMPLOYEE
-  =============================== */
+  ===================================== */
 
   const ownerEmail = "anikeshmanitripathi23@gmail.com";
 
@@ -111,9 +113,9 @@ async function seedSystem() {
     console.log("✅ Owner employee created");
   }
 
-  /* ===============================
+  /* =====================================
      OWNER USER
-  =============================== */
+  ===================================== */
 
   let ownerUser = await User.findOne({ email: ownerEmail });
 
@@ -133,11 +135,11 @@ async function seedSystem() {
     console.log("✅ Company owner created");
   }
 
-  /* ===============================
-     ROLES
-  =============================== */
+  /* =====================================
+     DEFAULT ROLES
+  ===================================== */
 
-  const roles = [
+  const defaultRoles = [
 
     {
       name: "COMPANY_OWNER",
@@ -172,7 +174,7 @@ async function seedSystem() {
 
   ];
 
-  for (const role of roles) {
+  for (const role of defaultRoles) {
 
     const exists = await Role.findOne({
       name: role.name,
@@ -192,6 +194,7 @@ async function seedSystem() {
   }
 
   console.log("🌱 System seed complete");
+
 }
 
 module.exports = seedSystem;

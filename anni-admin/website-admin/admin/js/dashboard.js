@@ -1,31 +1,70 @@
 /* =========================================
-   DASHBOARD CONTROLLER (UI ONLY)
-   Auth handled in auth.js
+   DASHBOARD CONTROLLER
+   Handles:
+   - Section switching
+   - Module loading
+   - User info
+   - Logout
 ========================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+  const menuItems = document.querySelectorAll(".menu-item");
+  const sidebar = document.querySelector(".sidebar");
+  const welcomeText = document.getElementById("welcomeText");
+
+  let isSwitching = false;
+
   /* =========================================
-     INITIAL OVERVIEW CONTENT
+     USER INFO
   ========================================= */
 
-  const overview = document.getElementById("overview");
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (overview) {
-    overview.innerHTML = `
-      <h1>Dashboard Overview</h1>
-      <div class="card dashboard-card">
-        Welcome to Anni Admin
-      </div>
-    `;
+  if (user) {
+
+    const name = user.name || user.email || "Admin";
+    const role = user.role || "ADMIN";
+
+    if (welcomeText) {
+      welcomeText.innerText = `Welcome, ${name}`;
+    }
+
+    const initials = name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+
+    const userInitials = document.getElementById("userInitials");
+    const userName = document.getElementById("userName");
+    const userRole = document.getElementById("userRole");
+
+    if (userInitials) userInitials.innerText = initials;
+    if (userName) userName.innerText = name;
+    if (userRole) userRole.innerText = role;
   }
 
   /* =========================================
-     SECTION SWITCHING SYSTEM
+     LOGOUT
   ========================================= */
 
-  const menuItems = document.querySelectorAll(".menu-item");
-  let isSwitching = false;
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      window.location.href = "/login/index.html";
+    });
+  }
+
+  /* =========================================
+     SECTION SWITCHER
+  ========================================= */
 
   async function activateSection(sectionName) {
 
@@ -38,30 +77,39 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     isSwitching = true;
 
-    // Store last active section in session
     sessionStorage.setItem("activeAdminSection", sectionName);
 
     menuItems.forEach(item =>
       item.classList.remove("active-menu")
     );
 
-    document
-      .querySelector(`.menu-item[data-section="${sectionName}"]`)
-      ?.classList.add("active-menu");
+    const activeMenu = document.querySelector(
+      `.menu-item[data-section="${sectionName}"]`
+    );
+
+    if (activeMenu) {
+      activeMenu.classList.add("active-menu");
+    }
 
     try {
 
       Loader?.start();
 
       if (current) {
+
         if (typeof Transition !== "undefined") {
           await Transition.fadeOut(current);
         }
+
         current.classList.remove("active");
       }
 
       next.classList.add("active");
       next.style.opacity = 0;
+
+      /* =========================================
+         LOAD MODULE DYNAMICALLY
+      ========================================= */
 
       const loaderFunction =
         window[`load${capitalize(sectionName)}Module`];
@@ -77,32 +125,57 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
     } catch (err) {
+
       console.error("Section load error:", err);
+
+      next.innerHTML = `
+        <div class="card">
+          Failed to load ${sectionName} module.
+        </div>
+      `;
+
     } finally {
+
       Loader?.stop();
       isSwitching = false;
+
     }
   }
+
+  /* =========================================
+     HELPER
+  ========================================= */
 
   function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
+  /* =========================================
+     MENU CLICK HANDLER
+  ========================================= */
+
   menuItems.forEach(item => {
+
     item.addEventListener("click", () => {
-      activateSection(item.getAttribute("data-section"));
+
+      const section = item.getAttribute("data-section");
+      activateSection(section);
+
     });
+
   });
 
   /* =========================================
-     INITIAL LOAD
+     DEFAULT SECTION
   ========================================= */
 
-  const savedSection = sessionStorage.getItem("activeAdminSection");
+  const savedSection =
+    sessionStorage.getItem("activeAdminSection");
+
   const initialSection = savedSection || "overview";
 
   await activateSection(initialSection);
 
-  document.querySelector(".sidebar")?.classList.remove("loading");
+  sidebar?.classList.remove("loading");
 
 });

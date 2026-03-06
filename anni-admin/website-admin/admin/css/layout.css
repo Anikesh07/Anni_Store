@@ -16,34 +16,56 @@
   width: 240px;
   background: var(--sidebar-bg);
   color: #ffffff;
-  padding: 28px 20px;
+
   display: flex;
   flex-direction: column;
+
+  padding: 24px 18px;
 }
+
+/* =========================================================
+   LOGO
+========================================================= */
 
 .logo {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 35px;
+  margin-bottom: 28px;
 }
 
-/* MENU ITEMS */
+/* =========================================================
+   NAVIGATION AREA
+========================================================= */
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* =========================================================
+   MENU ITEMS
+========================================================= */
 
 .menu-item {
   padding: 12px 16px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   border-radius: 8px;
+
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
+
   position: relative;
   font-size: 14px;
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
 }
 
-/* ACTIVE MENU */
+/* =========================================================
+   ACTIVE MENU
+========================================================= */
 
 .menu-item.active-menu {
   background: var(--primary);
@@ -55,12 +77,80 @@
 .menu-item.active-menu::before {
   content: "";
   position: absolute;
+
   left: -12px;
   top: 6px;
   bottom: 6px;
+
   width: 4px;
   background: #ffffff;
   border-radius: 4px;
+}
+
+/* =========================================================
+   MENU DIVIDERS
+========================================================= */
+
+.menu-divider {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+
+  margin-top: 18px;
+  margin-bottom: 10px;
+  padding-left: 6px;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   USER PROFILE AREA
+========================================================= */
+
+.sidebar-user {
+  border-top: 1px solid rgba(255,255,255,0.08);
+
+  padding-top: 14px;
+  margin-top: 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+
+  border-radius: 50%;
+
+  background: var(--primary);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-info {
+  flex: 1;
+}
+
+#userName {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+#userRole {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.sidebar-user .btn-danger {
+  font-size: 11px;
+  padding: 6px 10px;
 }
 
 /* =========================================================
@@ -69,7 +159,9 @@
 
 .main {
   flex: 1;
-  padding: 30px 40px;
+
+  padding: 28px 36px;
+
   overflow-y: auto;
 }
 
@@ -81,7 +173,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+
+  margin-bottom: 28px;
 }
 
 /* =========================================================
@@ -104,12 +197,15 @@
 ========================================================= */
 
 @keyframes fadeSection {
+
   from {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
+
 }

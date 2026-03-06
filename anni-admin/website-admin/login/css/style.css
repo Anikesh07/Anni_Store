@@ -317,3 +317,32 @@ input:focus{
 .hidden {
   display: none;
 }
+
+#otp {
+  letter-spacing: 6px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.6;
+  transition: 0.2s ease;
+}
+
+.toggle-password:hover {
+  opacity: 1;
+}

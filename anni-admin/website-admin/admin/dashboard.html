@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Anni Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Anni Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/modules.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/modules.css">
 </head>
 
 <body>
 
 <!-- =========================
-     TOP SLIDING LOADER
+     GLOBAL TOP LOADER
 ========================= -->
 <div id="topLoader" class="top-loader">
   <div class="top-loader-bar"></div>
@@ -23,90 +22,133 @@
 
 <div class="layout dashboard-wrapper">
 
-  <!-- =========================
-       SIDEBAR
-  ========================== -->
-  <aside class="sidebar loading">
+<!-- =========================
+     SIDEBAR
+========================= -->
+<aside class="sidebar loading">
+
+  <div class="sidebar-top">
     <h2 class="logo">Anni Admin</h2>
+  </div>
 
-    <nav>
-      <div class="menu-item" data-section="overview">Overview</div>
-      <div class="menu-item" data-section="products">Products</div>
-      <div class="menu-item" data-section="orders">Orders</div>
-      <div class="menu-item" data-section="employees">Employees</div>
-      <div class="menu-item" data-section="analytics">Analytics</div>
-      <div class="menu-item" data-section="chatbot">Chatbot</div>
-      <div class="menu-item" data-section="system">System Settings</div>
-    </nav>
-  </aside>
+  <nav class="sidebar-nav">
 
-  <!-- =========================
-       MAIN CONTENT
-  ========================== -->
-  <main class="main">
+    <div class="menu-item" data-section="overview">Overview</div>
 
-    <!-- Topbar -->
-    <header class="topbar dashboard-card">
-      <div id="welcomeText"></div>
-      <button id="logoutBtn" class="btn-danger">Logout</button>
-    </header>
+    <div class="menu-divider">Commerce</div>
 
-    <!-- Sections -->
-    <div class="sections-container">
-      <section id="overview" class="section dashboard-card"></section>
-      <section id="products" class="section dashboard-card"></section>
-      <section id="orders" class="section dashboard-card"></section>
-      <section id="employees" class="section dashboard-card"></section>
-      <section id="analytics" class="section dashboard-card"></section>
-      <section id="chatbot" class="section dashboard-card"></section>
-      <section id="system" class="section dashboard-card"></section>
+    <div class="menu-item" data-section="products">Products</div>
+    <div class="menu-item" data-section="orders">Orders</div>
+
+    <div class="menu-divider">HR Management</div>
+
+    <div class="menu-item" data-section="employee">Employees</div>
+    <div class="menu-item" data-section="attendance">Attendance</div>
+    <div class="menu-item" data-section="leave">Leave</div>
+    <div class="menu-item" data-section="payroll">Payroll</div>
+
+    <div class="menu-divider">Automation</div>
+
+    <div class="menu-item" data-section="chatbot">Chatbot</div>
+    <div class="menu-item" data-section="customers">Customer Service</div>
+
+    <div class="menu-divider">System</div>
+
+    <div class="menu-item" data-section="analytics">Analytics</div>
+    <div class="menu-item" data-section="system">System Settings</div>
+
+  </nav>
+
+  <!-- USER PROFILE -->
+  <div class="sidebar-user">
+
+    <div class="user-avatar">
+      <span id="userInitials">A</span>
     </div>
 
-  </main>
+    <div class="user-info">
+      <div id="userName">Admin</div>
+      <div id="userRole">Administrator</div>
+    </div>
+
+    <button id="logoutBtn" class="btn-danger">Logout</button>
+
+  </div>
+
+</aside>
+
+<!-- =========================
+     MAIN CONTENT
+========================= -->
+<main class="main">
+
+<header class="topbar dashboard-card">
+  <div id="welcomeText"></div>
+</header>
+
+<div class="sections-container">
+
+<section id="overview" class="section dashboard-card"></section>
+
+<section id="products" class="section dashboard-card"></section>
+<section id="orders" class="section dashboard-card"></section>
+
+<section id="employee" class="section dashboard-card"></section>
+<section id="attendance" class="section dashboard-card"></section>
+<section id="leave" class="section dashboard-card"></section>
+<section id="payroll" class="section dashboard-card"></section>
+
+<section id="analytics" class="section dashboard-card"></section>
+<section id="chatbot" class="section dashboard-card"></section>
+<section id="customers" class="section dashboard-card"></section>
+
+<section id="system" class="section dashboard-card"></section>
+
+</div>
+
+</main>
 </div>
 
 <!-- =========================
-     SESSION WARNING MODAL
+     SESSION WARNING
 ========================= -->
 <div id="sessionWarning" class="session-warning hidden">
   <div class="session-box">
     <h3>Session Expiring</h3>
-    <p>
-      Your session will expire in 
-      <span id="countdown">60</span> seconds.
-    </p>
+    <p>Your session will expire in <span id="countdown">60</span> seconds.</p>
     <button id="stayLoggedInBtn" class="btn-primary">
       Stay Logged In
     </button>
   </div>
 </div>
 
+<div id="globalModal" class="modal-overlay hidden">
+  <div class="modal-box" id="modalBox"></div>
+</div>
 
-<!-- =========================
-     AUTH GUARD (MODULE)
-========================= -->
-<script type="module">
-  import { checkAdminAuth } from "./js/core/auth.js";
-  checkAdminAuth();
-</script>
-<!-- =========================
-     CORE SCRIPTS
-========================= -->
+
+
+<!-- AUTH -->
+<script src="js/core/auth.js" defer></script>
+<!-- API -->
+<script src="js/core/api.js"></script>
+
+<!-- CORE -->
 <script src="js/core/loader.js" defer></script>
 <script src="js/core/transition.js" defer></script>
 
-<!-- =========================
-     MODULE SCRIPTS
-========================= -->
+<!-- MODULES -->
 <script src="js/modules/products.js" defer></script>
 <script src="js/modules/orders.js" defer></script>
-<script src="js/modules/employees.js" defer></script>
+<script src="js/modules/employee.js" defer></script>
+<script src="js/modules/attendance.js" defer></script>
+<script src="js/modules/leave.js" defer></script>
+<script src="js/modules/payroll.js" defer></script>
 <script src="js/modules/analytics.js" defer></script>
 <script src="js/modules/chatbot.js" defer></script>
+<script src="js/modules/customers.js" defer></script>
 
-<!-- =========================
-     DASHBOARD CONTROLLER
-========================= -->
+<!-- DASHBOARD -->
 <script src="js/dashboard.js" defer></script>
 
 </body>
