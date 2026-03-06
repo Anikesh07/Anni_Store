@@ -5,7 +5,7 @@ const { protect, allowRoles } = require("../services/permission.middleware");
 const leaveController = require("../controllers/leave.controller");
 
 /* ==========================================
-   APPLY LEAVE (EMPLOYEE)
+   APPLY LEAVE
 ========================================== */
 router.post(
   "/apply",
@@ -24,7 +24,7 @@ router.get(
 );
 
 /* ==========================================
-   MANAGER: VIEW TEAM LEAVE REQUESTS
+   MANAGER: TEAM LEAVES
 ========================================== */
 router.get(
   "/team",
@@ -34,7 +34,7 @@ router.get(
 );
 
 /* ==========================================
-   MANAGER: APPROVE / REJECT LEAVE
+   REVIEW LEAVE
 ========================================== */
 router.put(
   "/review/:id",
@@ -44,7 +44,7 @@ router.put(
 );
 
 /* ==========================================
-   HR / OWNER: VIEW ALL COMPANY LEAVES
+   ALL COMPANY LEAVES
 ========================================== */
 router.get(
   "/all",
@@ -54,7 +54,7 @@ router.get(
 );
 
 /* ==========================================
-   HR OVERRIDE (OPTIONAL)
+   HR OVERRIDE
 ========================================== */
 router.put(
   "/override/:id",

@@ -7,19 +7,27 @@ const ROLE_HIERARCHY = {
 };
 
 /* =========================================
-   AUTH CHECK (already exists as protect)
+   AUTH CHECK
 ========================================= */
 
 exports.protect = require("./auth.middleware").protect;
+
 
 /* =========================================
    STRICT ROLE CHECK
 ========================================= */
 
 exports.allowRoles = (...allowedRoles) => {
+
   return (req, res, next) => {
+
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    /* SUPER ADMIN BYPASS */
+    if (req.user.role === "SUPER_ADMIN") {
+      return next();
     }
 
     if (!allowedRoles.includes(req.user.role)) {
@@ -28,17 +36,28 @@ exports.allowRoles = (...allowedRoles) => {
 
     next();
   };
+
 };
+
 
 /* =========================================
    HIERARCHY ENFORCEMENT
-   Prevent creating/modifying higher roles
 ========================================= */
 
 exports.canManageRole = (targetRole) => {
+
   return (req, res, next) => {
 
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const currentRole = req.user.role;
+
+    /* SUPER ADMIN CAN MANAGE ANY ROLE */
+    if (currentRole === "SUPER_ADMIN") {
+      return next();
+    }
 
     if (!ROLE_HIERARCHY[currentRole]) {
       return res.status(403).json({ message: "Invalid role" });
@@ -51,5 +70,7 @@ exports.canManageRole = (targetRole) => {
     }
 
     next();
+
   };
+
 };

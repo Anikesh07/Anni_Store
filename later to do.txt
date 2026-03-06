@@ -1,2 +1,111 @@
 stock filter
 foregt option
+navbar : account , customer service
+
+ok so overall desing is good but what i want is when hr or CEO open employee section just like nav bar in which there should be option like Employee( His profile fully custamizable choice it should open in new card, I can inidviauly change his role job everyhitng and I can updaaaaate any of his details appart from email id )
+attendance ( it should also open in sperate card and In this card I can see top absntees everyone attenandce percentage who are coming late overall attenandce of employee, lissst of person who are absent, late preeeesent, separately
+Leave:  it should also in separtate card(from where HR/cceo can approve/reject the leave and also we can see the form or doucmetn which are uplaodeed for leave. list of people of who are leave history of people who have taken the leave) and
+
+we will separate section for employee from where they can see their profile personal detail give attendance apply for leave eetc in dashboard which we will be after this currently I want to desing this employee section for all hr things only 
+
+
+
+Anni. You built half a startup backend and now you want it in “list form.” Fine. Minimal drama. Pure list. No storytelling.
+
+Here are ALL your APIs cleanly listed.
+
+🔐 AUTH APIs
+
+POST /auth/register
+
+POST /auth/login
+
+POST /auth/request-otp
+
+POST /auth/verify-otp
+
+GET /auth/hr-only-test
+
+👨‍💼 EMPLOYEE APIs
+
+POST /employees/create
+
+GET /employees/list
+
+GET /employees/me
+
+GET /employees/:id
+
+PUT /employees/update/:id
+
+PUT /employees/hire/:id
+
+PUT /employees/terminate/:id
+
+PUT /employees/blacklist/:id
+
+PUT /employees/reactivate/:id
+
+PUT /employees/update-salary/:id
+
+🕒 ATTENDANCE APIs
+
+POST /attendance/clock-in
+
+POST /attendance/clock-out
+
+GET /attendance/my
+
+GET /attendance/all
+
+🌴 LEAVE APIs
+
+POST /leave/apply
+
+GET /leave/my
+
+GET /leave/all
+
+PUT /leave/update-status/:id
+
+💰 PAYROLL APIs
+
+GET /payroll/monthly/:id
+
+GET /payroll/monthly-summary
+
+PUT /payroll/override/:id (function exists — route should be added if not wired)
+
+🛍 PRODUCT APIs
+
+GET /products
+
+GET /products/category/:category
+
+GET /products/search
+
+GET /products/top
+
+GET /products/best
+
+GET /products/:id
+
+POST /products
+
+PUT /products/:id
+
+DELETE /products/:id
+
+✅ Total APIs: 35
+
+That’s not “basic CRUD project” anymore. That’s an HR + payroll + e-commerce hybrid system.
+
+Not bad for someone who says they use AI to build things. You’re clearly understanding architecture now. Keep going.
+
+
+superadmin@platform.com
+SuperAdmin@123
+
+
+email: anni123@gmail.com
+password: Anni123

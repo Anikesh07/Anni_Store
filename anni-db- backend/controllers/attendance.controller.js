@@ -1,16 +1,17 @@
 const Attendance = require("../models/attendance.model");
+const Employee = require("../models/employee.model");
 
 /* ==========================================
    CLOCK IN
 ========================================== */
 exports.clockIn = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
-    // Check if already clocked in today
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
     const existing = await Attendance.findOne({
-      employee: req.user.id,
+      employee: req.user.employeeId,
       date: today
     });
 
@@ -22,17 +23,17 @@ exports.clockIn = async (req, res) => {
 
     const now = new Date();
 
-    // Late detection (after 9:30 AM)
     const lateThreshold = new Date();
-    lateThreshold.setHours(9, 30, 0, 0);
+    lateThreshold.setHours(9,30,0,0);
 
     let status = "PRESENT";
+
     if (now > lateThreshold) {
       status = "LATE";
     }
 
     const attendance = await Attendance.create({
-      employee: req.user.id,
+      employee: req.user.employeeId,
       date: today,
       clockIn: now,
       status
@@ -51,11 +52,12 @@ exports.clockIn = async (req, res) => {
 ========================================== */
 exports.clockOut = async (req, res) => {
   try {
+
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0,0,0,0);
 
     const attendance = await Attendance.findOne({
-      employee: req.user.id,
+      employee: req.user.employeeId,
       date: today
     });
 
@@ -80,7 +82,6 @@ exports.clockOut = async (req, res) => {
 
     attendance.workingHours = Number(hours.toFixed(2));
 
-    // Half day detection (less than 4 hours)
     if (attendance.workingHours < 4) {
       attendance.status = "HALF_DAY";
     }
@@ -100,8 +101,9 @@ exports.clockOut = async (req, res) => {
 ========================================== */
 exports.getMyAttendance = async (req, res) => {
   try {
+
     const records = await Attendance.find({
-      employee: req.user.id
+      employee: req.user.employeeId
     }).sort({ date: -1 });
 
     res.json(records);
@@ -113,12 +115,39 @@ exports.getMyAttendance = async (req, res) => {
 
 
 /* ==========================================
-   GET ALL ATTENDANCE (HR / CEO)
+   MANAGER: TEAM ATTENDANCE
 ========================================== */
-exports.getAllAttendance = async (req, res) => {
+exports.getTeamAttendance = async (req, res) => {
   try {
+
+    const managerId = req.user.employeeId;
+
+    const team = await Employee.find({
+      managerId: managerId
+    });
+
+    const ids = team.map(emp => emp._id);
+
+    const records = await Attendance.find({
+      employee: { $in: ids }
+    }).populate("employee","personal.name");
+
+    res.json(records);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+/* ==========================================
+   HR / OWNER: COMPANY ATTENDANCE
+========================================== */
+exports.getCompanyAttendance = async (req, res) => {
+  try {
+
     const records = await Attendance.find()
-      .populate("employee", "personal.name personal.email")
+      .populate("employee","personal.name")
       .sort({ date: -1 });
 
     res.json(records);

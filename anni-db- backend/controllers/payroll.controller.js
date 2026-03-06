@@ -2,48 +2,40 @@ const Attendance = require("../models/attendance.model");
 const Leave = require("../models/leave.model");
 const Employee = require("../models/employee.model");
 
-exports.getMonthlyPayroll = async (req, res) => {
-  try {
-    const { year, month } = req.query;
+/* ======================================================
+   GENERATE PAYROLL FOR ONE EMPLOYEE
+====================================================== */
 
-    if (!year || !month) {
-      return res.status(400).json({ message: "Year and month required" });
+exports.generatePayroll = async (req, res) => {
+  try {
+
+    const { year, month } = req.body;
+    const employeeId = req.body.employeeId;
+
+    if (!year || !month || !employeeId) {
+      return res.status(400).json({
+        message: "employeeId, year and month are required"
+      });
     }
 
-    const employee = await Employee.findById(req.params.id);
+    const employee = await Employee.findById(employeeId);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return res.status(404).json({
+        message: "Employee not found"
+      });
     }
 
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0);
 
-    const today = new Date();
-
-    // 🚀 Adjust endDate if month is current month
-    if (
-      year == today.getFullYear() &&
-      month - 1 == today.getMonth()
-    ) {
-      endDate.setDate(today.getDate());
-    }
-
-    // 🚀 Respect joining date
-    const joiningDate = new Date(employee.professional.joiningDate);
-    if (joiningDate > startDate) {
-      startDate.setTime(joiningDate.getTime());
-    }
-
-    // 🚀 Calculate working days dynamically (Mon–Fri)
+    /* WORKING DAYS */
     let workingDays = 0;
     let current = new Date(startDate);
 
     while (current <= endDate) {
       const day = current.getDay();
-      if (day !== 0 && day !== 6) {
-        workingDays++;
-      }
+      if (day !== 0 && day !== 6) workingDays++;
       current.setDate(current.getDate() + 1);
     }
 
@@ -59,18 +51,19 @@ exports.getMonthlyPayroll = async (req, res) => {
     });
 
     const baseSalary = employee.salary.baseSalary;
-    const dailySalary = baseSalary / workingDays;
+    const dailySalary = workingDays ? baseSalary / workingDays : 0;
 
     let presentDays = 0;
     let halfDays = 0;
 
     attendanceRecords.forEach(record => {
-      if (record.status === "PRESENT" || record.status === "LATE") {
+
+      if (record.status === "PRESENT" || record.status === "LATE")
         presentDays++;
-      }
-      if (record.status === "HALF_DAY") {
+
+      if (record.status === "HALF_DAY")
         halfDays++;
-      }
+
     });
 
     const leaveDays = approvedLeaves.length;
@@ -85,6 +78,7 @@ exports.getMonthlyPayroll = async (req, res) => {
     const finalSalary = baseSalary - deductions;
 
     res.json({
+      employeeId,
       baseSalary,
       workingDays,
       presentDays,
@@ -100,88 +94,27 @@ exports.getMonthlyPayroll = async (req, res) => {
   }
 };
 
-exports.getMonthlySummary = async (req, res) => {
+/* ======================================================
+   MARK PAYROLL AS PAID
+====================================================== */
+
+exports.markPaid = async (req, res) => {
   try {
-    const { year, month } = req.query;
 
-    if (!year || !month) {
-      return res.status(400).json({ message: "Year and month required" });
-    }
+    const employee = await Employee.findById(req.params.id);
 
-    const employees = await Employee.find({ isActive: true });
-
-    let totalBaseSalary = 0;
-    let totalDeductions = 0;
-    let totalPayout = 0;
-
-    const results = [];
-
-    for (const emp of employees) {
-
-      const startDate = new Date(year, month - 1, 1);
-      const endDate = new Date(year, month, 0);
-
-      let workingDays = 0;
-      let current = new Date(startDate);
-
-      while (current <= endDate) {
-        const day = current.getDay();
-        if (day !== 0 && day !== 6) workingDays++;
-        current.setDate(current.getDate() + 1);
-      }
-
-      const attendance = await Attendance.find({
-        employee: emp._id,
-        date: { $gte: startDate, $lte: endDate }
-      });
-
-      const approvedLeaves = await Leave.find({
-        employee: emp._id,
-        status: "APPROVED",
-        startDate: { $gte: startDate, $lte: endDate }
-      });
-
-      let present = 0;
-      let half = 0;
-
-      attendance.forEach(r => {
-        if (r.status === "PRESENT" || r.status === "LATE") present++;
-        if (r.status === "HALF_DAY") half++;
-      });
-
-      const leaveDays = approvedLeaves.length;
-
-      const baseSalary = emp.salary.baseSalary;
-      const dailySalary = workingDays > 0 ? baseSalary / workingDays : 0;
-
-      const absent = workingDays - present - half - leaveDays;
-
-      const deductions =
-        (absent * dailySalary) +
-        (half * dailySalary * 0.5);
-
-      const finalSalary = baseSalary - deductions;
-
-      totalBaseSalary += baseSalary;
-      totalDeductions += deductions;
-      totalPayout += finalSalary;
-
-      results.push({
-        employeeId: emp._id,
-        name: emp.personal.name,
-        baseSalary,
-        finalSalary: Number(finalSalary.toFixed(2))
+    if (!employee) {
+      return res.status(404).json({
+        message: "Employee not found"
       });
     }
+
+    employee.lastSalaryPaidAt = new Date();
+
+    await employee.save();
 
     res.json({
-      year,
-      month,
-      totalEmployees: employees.length,
-      totalBaseSalary: Number(totalBaseSalary.toFixed(2)),
-      totalDeductions: Number(totalDeductions.toFixed(2)),
-      totalPayout: Number(totalPayout.toFixed(2)),
-      employees: results
+      message: "Payroll marked as paid"
     });
 
   } catch (error) {
@@ -189,30 +122,53 @@ exports.getMonthlySummary = async (req, res) => {
   }
 };
 
+/* ======================================================
+   EMPLOYEE VIEW OWN PAYROLL
+====================================================== */
 
-exports.overridePayroll = async (req, res) => {
+exports.getMyPayroll = async (req, res) => {
   try {
-    const { year, month, adjustedSalary, reason } = req.body;
 
-    const employee = await Employee.findById(req.params.id);
+    const employee = await Employee.findOne({
+      userId: req.user.userId
+    });
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return res.status(404).json({
+        message: "Employee profile not found"
+      });
     }
 
-    employee.payrollOverride = {
-      year,
-      month,
-      adjustedSalary,
-      reason
-    };
-
-    await employee.save();
-
     res.json({
-      message: "Payroll overridden successfully",
-      override: employee.payrollOverride
+      employeeId: employee._id,
+      baseSalary: employee.salary.baseSalary,
+      bonus: employee.salary.bonus,
+      medicalAllowance: employee.salary.medicalAllowance
     });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* ======================================================
+   COMPANY PAYROLL SUMMARY
+====================================================== */
+
+exports.getCompanyPayroll = async (req, res) => {
+  try {
+
+    const employees = await Employee.find({
+      companyId: req.user.companyId
+    });
+
+    const result = employees.map(emp => ({
+      id: emp._id,
+      name: emp.personal.name,
+      baseSalary: emp.salary.baseSalary
+    }));
+
+    res.json(result);
 
   } catch (error) {
     res.status(500).json({ message: error.message });

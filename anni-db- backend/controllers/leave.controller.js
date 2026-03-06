@@ -2,18 +2,13 @@ const Leave = require("../models/leave.model");
 const Employee = require("../models/employee.model");
 
 /* ==========================================
-   APPLY LEAVE (EMPLOYEE)
+   APPLY LEAVE
 ========================================== */
 exports.applyLeave = async (req, res) => {
   try {
-    if (req.user.type !== "EMPLOYEE") {
-      return res.status(403).json({
-        message: "Only employees can apply for leave"
-      });
-    }
 
     const leave = await Leave.create({
-      employee: req.user.id,
+      employee: req.user.employeeId || req.user.id,
       type: req.body.type,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
@@ -27,14 +22,14 @@ exports.applyLeave = async (req, res) => {
   }
 };
 
-
 /* ==========================================
-   GET MY LEAVES (EMPLOYEE)
+   GET MY LEAVES
 ========================================== */
 exports.getMyLeaves = async (req, res) => {
   try {
+
     const leaves = await Leave.find({
-      employee: req.user.id
+      employee: req.user.employeeId || req.user.id
     }).sort({ createdAt: -1 });
 
     res.json(leaves);
@@ -44,14 +39,24 @@ exports.getMyLeaves = async (req, res) => {
   }
 };
 
-
 /* ==========================================
-   GET ALL LEAVES (HR / CEO)
+   TEAM LEAVES (MANAGER)
 ========================================== */
-exports.getAllLeaves = async (req, res) => {
+exports.getTeamLeaves = async (req, res) => {
   try {
-    const leaves = await Leave.find()
-      .populate("employee", "personal.name personal.email")
+
+    const managerId = req.user.employeeId;
+
+    const teamEmployees = await Employee.find({
+      manager: managerId
+    }).select("_id");
+
+    const employeeIds = teamEmployees.map(e => e._id);
+
+    const leaves = await Leave.find({
+      employee: { $in: employeeIds }
+    })
+      .populate("employee", "personal.name")
       .sort({ createdAt: -1 });
 
     res.json(leaves);
@@ -61,12 +66,29 @@ exports.getAllLeaves = async (req, res) => {
   }
 };
 
+/* ==========================================
+   GET ALL LEAVES
+========================================== */
+exports.getAllLeaves = async (req, res) => {
+  try {
+
+    const leaves = await Leave.find()
+      .populate("employee", "personal.name")
+      .sort({ createdAt: -1 });
+
+    res.json(leaves);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 /* ==========================================
-   UPDATE LEAVE STATUS (HR / CEO)
+   REVIEW LEAVE
 ========================================== */
-exports.updateLeaveStatus = async (req, res) => {
+exports.reviewLeave = async (req, res) => {
   try {
+
     const { status } = req.body;
 
     const leave = await Leave.findById(req.params.id);
@@ -77,26 +99,16 @@ exports.updateLeaveStatus = async (req, res) => {
       });
     }
 
-    // Prevent double approval deduction
-    if (leave.status === "APPROVED" && status === "APPROVED") {
-      return res.json(leave);
-    }
-
     leave.status = status;
-    leave.reviewedBy = req.user.id;
+    leave.reviewedBy = req.user.employeeId || req.user.id;
 
     await leave.save();
 
-    // If approved → deduct leave balance
+    /* Deduct leave balance */
+
     if (status === "APPROVED") {
 
       const employee = await Employee.findById(leave.employee);
-
-      if (!employee) {
-        return res.status(404).json({
-          message: "Employee not found"
-        });
-      }
 
       const days =
         Math.ceil(
@@ -104,7 +116,6 @@ exports.updateLeaveStatus = async (req, res) => {
           (1000 * 60 * 60 * 24)
         ) + 1;
 
-      // Safety check
       if (employee.leaveBalance.remaining < days) {
         return res.status(400).json({
           message: "Not enough leave balance"
@@ -118,6 +129,35 @@ exports.updateLeaveStatus = async (req, res) => {
     }
 
     res.json(leave);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* ==========================================
+   HR OVERRIDE
+========================================== */
+exports.overrideLeaveStatus = async (req, res) => {
+  try {
+
+    const leave = await Leave.findById(req.params.id);
+
+    if (!leave) {
+      return res.status(404).json({
+        message: "Leave not found"
+      });
+    }
+
+    leave.status = req.body.status;
+    leave.reviewedBy = req.user.employeeId || req.user.id;
+
+    await leave.save();
+
+    res.json({
+      message: "Leave status overridden",
+      leave
+    });
 
   } catch (error) {
     res.status(500).json({ message: error.message });

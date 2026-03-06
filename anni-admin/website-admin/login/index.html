@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin | Anni Store</title>
-
-  <!-- CSS -->
+  <title>Admin Login | Anni Store</title>
   <link rel="stylesheet" href="/login/css/style.css">
 </head>
 <body>
@@ -18,12 +16,9 @@
     <div class="sk-logo"></div>
     <div class="sk-subtitle"></div>
     <div class="sk-input"></div>
-    <div class="sk-input"></div>
     <div class="sk-button"></div>
-    <div class="sk-text"></div>
   </div>
 </div>
-
 
 <!-- =========================
      LOGIN CONTAINER
@@ -33,23 +28,36 @@
   <div class="auth-card">
 
     <h1 class="brand">Anni Store</h1>
-    <p class="subtitle" id="formTitle">Admin Login</p>
+    <p class="subtitle">Admin & Employee Login</p>
 
     <form id="authForm">
-
-      <!-- Name (Signup Only) -->
-      <div class="input-group hidden" id="nameGroup">
-        <input type="text" id="name" placeholder="Full Name">
-      </div>
 
       <!-- Email -->
       <div class="input-group">
         <input type="email" id="email" placeholder="Email Address" required>
       </div>
 
-      <!-- Password -->
-      <div class="input-group">
-        <input type="password" id="password" placeholder="Password" required>
+      <!-- Password (Login Mode) -->
+      <div class="input-group password-wrapper" id="passwordGroup">
+        <input type="password" id="password" placeholder="Password">
+        <span class="toggle-password" data-target="password">👁</span>
+      </div>
+
+      <!-- OTP (Activation Mode) -->
+      <div class="input-group hidden" id="otpGroup">
+        <input type="text" id="otp" placeholder="Enter 6-digit OTP" maxlength="6">
+      </div>
+
+      <!-- New Password -->
+      <div class="input-group hidden password-wrapper" id="newPasswordGroup">
+        <input type="password" id="newPassword" placeholder="Set New Password">
+        <span class="toggle-password" data-target="newPassword">👁</span>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="input-group hidden password-wrapper" id="confirmPasswordGroup">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+        <span class="toggle-password" data-target="confirmPassword">👁</span>
       </div>
 
       <!-- Submit Button -->
@@ -60,18 +68,16 @@
 
     </form>
 
+    <!-- Toggle Activate -->
+    <p class="toggle-text" id="toggleText">
+      <span id="toggleBtn" class="toggle-btn">Activate Account</span>
+    </p>
+
     <!-- Error Message -->
     <p id="errorMsg" class="error"></p>
 
-    <!-- Toggle -->
-    <p class="toggle-text">
-      <span id="toggleText">Don't have an account?</span>
-      <span id="toggleBtn" class="toggle-btn">Sign Up</span>
-    </p>
-
   </div>
 </div>
-
 
 <!-- =========================
      FULL SCREEN LOADER
@@ -88,8 +94,6 @@
   </div>
 </div>
 
-
-<!-- JS (IMPORTANT: use defer) -->
 <script src="/login/js/login.js" defer></script>
 
 </body>

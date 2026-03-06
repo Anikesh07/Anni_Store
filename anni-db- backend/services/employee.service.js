@@ -2,30 +2,55 @@ const Employee = require("../models/employee.model");
 const User = require("../models/user.model");
 const auditService = require("./audit.service");
 
+
 /* ==========================================
    CREATE EMPLOYEE (INVITED)
 ========================================== */
 exports.createEmployee = async (authUser, data) => {
+  console.log("AUTH USER:", authUser);
+  console.log("EMPLOYEE DATA:", data);
 
   const companyId = authUser.companyId;
 
-  /* Check existing user */
+  /* ==============================
+     VALIDATION
+  ============================== */
+
+  if (!data.name) {
+    throw new Error("Employee name is required");
+  }
+
+  if (!data.email) {
+    throw new Error("Employee email is required");
+  }
+
+  const email = data.email.toLowerCase();
+
+
+  /* ==============================
+     CHECK EXISTING USER
+  ============================== */
+
   const existingUser = await User.findOne({
     companyId,
-    email: data.email.toLowerCase()
+    email
   });
 
   if (existingUser) {
     throw new Error("User with this email already exists");
   }
 
-  /* Create employee profile */
+
+  /* ==============================
+     CREATE EMPLOYEE PROFILE
+  ============================== */
+
   const employee = await Employee.create({
     companyId,
     personal: {
       name: data.name,
-      phone: data.phone,
-      address: data.address
+      phone: data.phone || "",
+      address: data.address || ""
     },
     professional: {
       departmentId: data.departmentId || null,
@@ -35,20 +60,32 @@ exports.createEmployee = async (authUser, data) => {
     employmentStatus: "INVITED"
   });
 
-  /* Create user account */
+
+  /* ==============================
+     CREATE USER ACCOUNT
+  ============================== */
+
   const user = await User.create({
-    email: data.email.toLowerCase(),
+    email,
     role: data.role || "EMPLOYEE",
     companyId,
     employeeId: employee._id,
     accountStatus: "INVITED"
   });
 
-  /* Link employee to user */
+
+  /* ==============================
+     LINK EMPLOYEE → USER
+  ============================== */
+
   employee.userId = user._id;
   await employee.save();
 
-  /* Audit Log */
+
+  /* ==============================
+     AUDIT LOG
+  ============================== */
+
   await auditService.logAction({
     userId: authUser.userId,
     companyId,
@@ -56,18 +93,23 @@ exports.createEmployee = async (authUser, data) => {
     targetType: "Employee",
     targetId: employee._id,
     meta: {
-      email: data.email,
+      email,
       role: user.role
     }
   });
+
+
+  /* ==============================
+     RESPONSE
+  ============================== */
 
   return {
     message: "Employee invited successfully",
     employee,
     user
   };
-};
 
+};
 
 /* ==========================================
    UPDATE EMPLOYEE
