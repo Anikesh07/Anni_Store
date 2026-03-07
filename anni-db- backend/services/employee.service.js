@@ -49,6 +49,7 @@ exports.createEmployee = async (authUser, data) => {
     companyId,
     personal: {
       name: data.name,
+      email: email,
       phone: data.phone || "",
       address: data.address || ""
     },
