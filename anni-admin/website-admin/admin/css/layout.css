@@ -1,6 +1,12 @@
 /* =========================================================
-   LAYOUT STRUCTURE
+   GLOBAL LAYOUT
 ========================================================= */
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: inherit;
+}
 
 .layout {
   display: flex;
@@ -13,14 +19,20 @@
 ========================================================= */
 
 .sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+
   width: 240px;
+  height: 100vh;
+
   background: var(--sidebar-bg);
   color: #ffffff;
 
   display: flex;
   flex-direction: column;
 
-  padding: 24px 18px;
+  padding: 20px 16px;
 }
 
 /* =========================================================
@@ -30,7 +42,7 @@
 .logo {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 /* =========================================================
@@ -39,8 +51,7 @@
 
 .sidebar-nav {
   flex: 1;
-  overflow-y: auto;
-  padding-right: 4px;
+  overflow: hidden;
 }
 
 /* =========================================================
@@ -48,15 +59,15 @@
 ========================================================= */
 
 .menu-item {
-  padding: 12px 16px;
-  margin-bottom: 8px;
+  padding: 9px 14px;
+  margin-bottom: 6px;
   border-radius: 8px;
 
   cursor: pointer;
   transition: all 0.18s ease;
 
   position: relative;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .menu-item:hover {
@@ -71,8 +82,6 @@
   background: var(--primary);
   font-weight: 600;
 }
-
-/* LEFT ACTIVE INDICATOR */
 
 .menu-item.active-menu::before {
   content: "";
@@ -92,12 +101,12 @@
 ========================================================= */
 
 .menu-divider {
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   opacity: 0.5;
 
-  margin-top: 18px;
-  margin-bottom: 10px;
+  margin-top: 12px;
+  margin-bottom: 6px;
   padding-left: 6px;
 
   text-transform: uppercase;
@@ -108,10 +117,10 @@
 ========================================================= */
 
 .sidebar-user {
-  border-top: 1px solid rgba(255,255,255,0.08);
+  margin-top: auto;
 
-  padding-top: 14px;
-  margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 12px;
 
   display: flex;
   align-items: center;
@@ -123,7 +132,6 @@
   height: 36px;
 
   border-radius: 50%;
-
   background: var(--primary);
 
   display: flex;
@@ -158,11 +166,14 @@
 ========================================================= */
 
 .main {
-  flex: 1;
+  margin-left: 240px;
+  width: calc(100% - 240px);
+  height: 100vh;
 
   padding: 28px 36px;
 
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* =========================================================
@@ -208,4 +219,21 @@
     transform: translateY(0);
   }
 
+}
+
+/* =========================================================
+   SCROLLBAR STYLE
+========================================================= */
+
+.main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.main::-webkit-scrollbar-track {
+  background: transparent;
 }

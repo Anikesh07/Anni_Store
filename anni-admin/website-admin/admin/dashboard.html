@@ -109,6 +109,26 @@
 </main>
 </div>
 
+
+<!-- =========================
+     GLOBAL SIDE PANEL
+========================= -->
+<div id="sidePanel" class="side-panel">
+
+  <div class="side-panel-header">
+    <div id="panelHeader"></div>
+    <button id="panelCloseBtn" class="panel-close">✕</button>
+  </div>
+
+  <div id="panelTabs" class="side-panel-tabs"></div>
+
+  <div id="panelContent" class="side-panel-content"></div>
+
+  <div id="panelFooter" class="side-panel-footer"></div>
+
+</div>
+
+
 <!-- =========================
      SESSION WARNING
 ========================= -->
@@ -122,20 +142,27 @@
   </div>
 </div>
 
+
+<!-- =========================
+     GLOBAL MODAL
+========================= -->
 <div id="globalModal" class="modal-overlay hidden">
   <div class="modal-box" id="modalBox"></div>
 </div>
 
 
-
 <!-- AUTH -->
 <script src="js/core/auth.js" defer></script>
+
 <!-- API -->
 <script src="js/core/api.js"></script>
 
 <!-- CORE -->
 <script src="js/core/loader.js" defer></script>
 <script src="js/core/transition.js" defer></script>
+
+<!-- PANEL SYSTEM -->
+<script src="js/core/panel.js" defer></script>
 
 <!-- MODULES -->
 <script src="js/modules/products.js" defer></script>
