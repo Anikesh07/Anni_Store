@@ -91,6 +91,368 @@ Before running any part of the project, make sure the above software is installe
 3. Serve admin and store frontends as described.
 4. Activate the bot by training and running Rasa; verify `http://localhost:5005` (default) returns Rasa API responses.
 
+## New Features & Enhancements
+
+### Backend (anni-db-backend)
+
+#### 1. **Comprehensive Employee Management**
+- **Features:**
+  - Employee creation with invitation system
+  - Multi-level employee filtering (department, employment type, status, search)
+  - Employee profile management with personal and professional details
+  - Employment status tracking (INVITED, ACTIVE, ON_LEAVE, TERMINATED)
+  - Hierarchical reporting structure with manager assignments
+  
+- **Benefits:**
+  - Centralized employee database with real-time status updates
+  - Easy bulk filtering for HR operations
+  - Scalable organizational hierarchy management
+
+#### 2. **Intelligent Payroll Management**
+- **Features:**
+  - Automatic payroll generation based on attendance and leave records
+  - Working days calculation (excludes weekends)
+  - Absence-based salary deductions
+  - Half-day and full-day leave support
+  - Bonus and additional deductions management
+  - Payroll status tracking (PENDING, PAID)
+  - Employee payslip history retrieval
+  
+- **Benefits:**
+  - Reduces manual calculation errors
+  - Accurate salary deductions based on actual attendance
+  - Compliance-ready payroll records
+  - Transaction audit trail for all payroll changes
+
+#### 3. **Attendance & Clock System**
+- **Features:**
+  - Digital clock-in/clock-out system
+  - Automatic late detection (after 9:30 AM)
+  - Daily attendance status tracking (PRESENT, LATE, HALF_DAY, ABSENT)
+  - Attendance history and analytics
+  - Integration with payroll calculations
+  
+- **Benefits:**
+  - Eliminates manual attendance marking
+  - Real-time work hour tracking
+  - Automated late notifications
+  - Data-driven HR insights
+
+#### 4. **Leave Management System**
+- **Features:**
+  - Leave request creation and submission
+  - Multi-level approval workflow
+  - Leave type categorization (SICK, CASUAL, PERSONAL, etc.)
+  - Leave balance tracking
+  - Approved leave impact on salary calculations
+  - Leave history and analytics
+  
+- **Benefits:**
+  - Streamlined leave approval process
+  - Prevents leave balance conflicts
+  - Automatic salary adjustments for approved leaves
+  - Transparent leave tracking for employees
+
+#### 5. **Comprehensive Audit Logging**
+- **Features:**
+  - Tracks all user actions within the system
+  - Records action type, target type, and target ID
+  - Captures field-level changes (old vs new values)
+  - IP address and user agent logging
+  - Company-wise audit log isolation
+  - Paginated audit log retrieval
+  
+- **Benefits:**
+  - Complete compliance and accountability
+  - Security incident investigation capability
+  - Change history and data recovery support
+  - Regulatory compliance (SOX, GDPR compliant)
+
+#### 6. **Department Management**
+- **Features:**
+  - Create and manage company departments
+  - Department hierarchy and reporting structures
+  - Employee assignment to departments
+  - Department-wise resource allocation
+  
+- **Benefits:**
+  - Organized team structure
+  - Easy scaling as company grows
+  - Department-specific report generation
+
+#### 7. **Advanced Authentication & Authorization**
+- **Features:**
+  - JWT-based secure authentication
+  - Role-based access control (ADMIN, HR, MANAGER, EMPLOYEE, COMPANY_OWNER)
+  - Route protection with permission middleware
+  - Company data isolation (multi-tenancy)
+  - Secure password hashing with bcryptjs
+  
+- **Benefits:**
+  - Enterprise-grade security
+  - Granular permission control
+  - Safe multi-company deployments
+  - Prevention of unauthorized access
+
+#### 8. **API Features**
+- **Features:**
+  - RESTful API design
+  - Static file serving for uploads (products)
+  - Comprehensive error handling
+  - CORS support for cross-origin requests
+  - Health check endpoint
+  
+- **Benefits:**
+  - Seamless frontend integration
+  - Easy debugging with error messages
+  - Scalable API architecture
+
+### Admin Dashboard (anni-admin)
+
+#### 1. **Modular Dashboard Interface**
+- **Features:**
+  - Clean, organized sidebar navigation
+  - Module-based architecture for easy expansion
+  - Responsive user profile display
+  - Quick logout functionality
+  - Section switching with smooth transitions
+  
+- **Benefits:**
+  - Intuitive user experience
+  - Easy feature extension
+  - Professional appearance
+
+#### 2. **Multiple Admin Modules**
+The admin dashboard includes the following core modules:
+
+- **Analytics Module** (`analytics.js`)
+  - Dashboard overview and KPIs
+  - Real-time metrics and statistics
+  - Performance tracking
+
+- **Attendance Module** (`attendance.js`)
+  - Attendance records viewing
+  - Attendance analytics and reports
+  - Bulk attendance operations
+
+- **Employee Module** (`employee.js`)
+  - Employee list management
+  - Quick employee search and filter
+  - Employee profile viewing and editing
+
+- **Leave Module** (`leave.js`)
+  - Leave request management
+  - Approval/rejection workflow
+  - Leave balance tracking
+
+- **Payroll Module** (`payroll.js`)
+  - Payroll generation dashboard
+  - Payslip viewing and verification
+  - Salary payment tracking
+  - Compensation analytics
+
+- **Orders Module** (`orders.js`)
+  - E-commerce order management
+  - Order status tracking
+  - Order fulfillment
+
+- **Products Module** (`products.js`)
+  - Product inventory management
+  - Product listing and search
+  - Stock level monitoring
+
+- **Customers Module** (`customers.js`)
+  - Customer database management
+  - Customer analytics
+  - Business intelligence
+
+- **Chatbot Module** (`chatbot.js`)
+  - Bot configuration and management
+  - Conversation logs and analytics
+  - Bot training and improvement
+
+#### 3. **Secure Login System**
+- **Features:**
+  - Username/email login
+  - Password authentication
+  - Session token management
+  - Login time tracking
+  - Remember me functionality
+  
+- **Benefits:**
+  - Secure admin access
+  - Session timeout protection
+  - Session hijacking prevention
+
+#### 4. **User Session Management**
+- **Features:**
+  - Local storage-based session persistence
+  - User profile information display
+  - Active section memory
+  - Secure token-based authentication
+  
+- **Benefits:**
+  - Seamless user experience across page refreshes
+  - Non-intrusive navigation history
+  - Enhanced security with token management
+
+#### 5. **Responsive Admin Interface**
+- **Features:**
+  - Mobile-friendly design
+  - Collapsible sidebar
+  - Responsive navigation
+  - Modern CSS architecture with modularized styles
+  
+- **Benefits:**
+  - Works on all devices
+  - Better accessibility
+  - Professional appearance
+
+## API Endpoints Reference
+
+### Authentication Routes
+- `POST /api/auth/login` – User login
+- `POST /api/auth/register` – User registration
+- `POST /api/auth/logout` – User logout
+
+### Employee Management
+- `GET /api/employee` – List employees with filters (department, type, status, search)
+- `POST /api/employee` – Create new employee
+- `GET /api/employee/:id` – Get employee details
+- `PUT /api/employee/:id` – Update employee information
+
+### Attendance Management
+- `POST /api/attendance/clock-in` – Clock in to work
+- `POST /api/attendance/clock-out` – Clock out from work
+- `GET /api/attendance/records` – View attendance records
+- `GET /api/attendance/analytics` – Get attendance analytics
+
+### Leave Management
+- `POST /api/leave` – Submit leave request
+- `GET /api/leave` – View leave requests
+- `PUT /api/leave/:id/approve` – Approve leave request
+- `PUT /api/leave/:id/reject` – Reject leave request
+
+### Payroll Management
+- `POST /api/payroll/generate` – Generate payroll (HR only)
+- `PUT /api/payroll/pay/:id` – Mark salary as paid
+- `GET /api/payroll/my` – View personal payslips
+- `GET /api/payroll/company` – View company payroll (HR only)
+
+### Department Management
+- `GET /api/department` – List all departments
+- `POST /api/department` – Create new department
+- `GET /api/department/:id` – Get department details
+
+### Company Management
+- `GET /api/company` – Get company information
+- `POST /api/company` – Create company
+- `PUT /api/company/:id` – Update company details
+
+### Product Management
+- `GET /products` – List all products
+- `POST /products` – Add new product
+- `PUT /products/:id` – Update product
+- `DELETE /products/:id` – Delete product
+
+## Database Models
+
+### User Model
+Stores user authentication and role information with company associations.
+
+### Employee Model
+Comprehensive employee profile with personal info, professional details, employment status, and salary information.
+
+### Payroll Model
+Maintains payroll records with salary calculations, bonuses, deductions, and payment status tracking.
+
+### Attendance Model
+Tracks daily attendance with clock-in/clock-out times, status, and working hours.
+
+### Leave Model
+Manages leave requests with approval workflow and leave balance tracking.
+
+### Department Model
+Structuring organization into departments.
+
+### Audit Log Model
+Records all system actions for compliance and security auditing with field-level change tracking.
+
+### Company Model
+Multi-tenant company information and settings.
+
+## Technology Stack
+
+### Backend
+- **Runtime**: Node.js (v14+)
+- **Framework**: Express.js
+- **Database**: MongoDB
+- **Authentication**: JWT (jsonwebtoken)
+- **Security**: bcryptjs for password hashing
+- **File Uploads**: Multer
+- **Email**: Nodemailer
+- **HTTP Client**: Axios
+
+### Admin Dashboard
+- **HTML5** for structure
+- **CSS3** with modular architecture
+- **Vanilla JavaScript** for interactivity
+- **LocalStorage** for session management
+
+### Frontend Store
+- **HTML5**, **CSS3**, **Vanilla JavaScript**
+- **Responsive Design**
+- **API Integration**
+
+### Chatbot
+- **Rasa Framework** for NLP
+- **Python** for actions and scripting
+- **YAML** for training data
+
+## Security Features
+
+- **JWT-based authentication** for secure API access
+- **Role-based access control (RBAC)** with multiple permission levels
+- **Bcrypt password hashing** for secure credential storage
+- **Comprehensive audit logging** for all user actions
+- **Company data isolation** in multi-tenant architecture
+- **Request validation** and sanitization
+- **CORS protection** for cross-origin requests
+- **IP address and user agent logging** for security monitoring
+
+## Deployment Recommendations
+
+1. **Environment Variables**: Configure `.env` file with:
+   - `MONGO_URI` – MongoDB connection string
+   - `PORT` – Server port (default: 4000)
+   - `JWT_SECRET` – Secret key for JWT signing
+   - `EMAIL_USER` – Email for notifications
+   - `EMAIL_PASSWORD` – Email authentication
+   - `RASA_API` – Rasa API endpoint
+
+2. **Database Backup**: Regular MongoDB backups recommended
+3. **SSL/TLS**: Deploy with HTTPS in production
+4. **Rate Limiting**: Implement API rate limiting
+5. **Logging**: Set up centralized logging systems
+6. **Monitoring**: Use application monitoring tools
+
+## Troubleshooting
+
+### Backend Connection Issues
+- Verify MongoDB is running: `mongod --version`
+- Check PORT is not in use: `netstat -ano | findstr :4000`
+- Verify `.env` configuration
+
+### Admin Dashboard Login Issues
+- Clear browser cache and sessionstorage
+- Verify backend is running on correct port
+- Check API endpoint configuration in `js/api.js`
+
+### Attendance Tracking
+- Ensure employee is registered in system
+- Verify clock-in/clock-out endpoints are accessible
+- Check Attendance model indexes for performance
+
 ## Commands Summary
 
 | Component        | Directory                   | Key Commands                          |
