@@ -59,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, LOADER_DURATION);
 
     return;
-
   }
 
 
@@ -145,9 +144,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok) throw new Error(data.message);
 
-        /* 🔴 IMPORTANT FIX */
+        /* ================= STORE SESSION ================= */
+
         sessionStorage.setItem("adminToken", data.token);
         sessionStorage.setItem("adminLoginTime", Date.now().toString());
+
+        /* 🔹 STORE USER DATA FOR DASHBOARD */
+        if (data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
 
         const overlay = document.getElementById("authLoaderOverlay");
         const card = document.querySelector(".auth-card");
@@ -170,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         window.location.href = "../admin/dashboard.html";
         return;
-
       }
 
 
@@ -200,14 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
         newPasswordGroup.classList.remove("hidden");
         confirmPasswordGroup.classList.remove("hidden");
 
-        otpGroup.classList.add("slide-in");
-        newPasswordGroup.classList.add("slide-in");
-        confirmPasswordGroup.classList.add("slide-in");
-
         btnText.textContent = "ACTIVATE ACCOUNT";
-
         return;
-
       }
 
       if (!otp) throw new Error("Please enter OTP");
@@ -273,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  /* ================= SHOW / HIDE PASSWORD ================= */
+  /* ================= PASSWORD VISIBILITY ================= */
 
   const toggleIcons = document.querySelectorAll(".toggle-password");
 

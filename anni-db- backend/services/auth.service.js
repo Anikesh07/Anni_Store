@@ -10,6 +10,8 @@ const Employee = require("../models/employee.model");
    LOGIN
 ========================================= */
 
+
+
 exports.login = async (companySlug, email, password) => {
 
   if (!email || !password) {
@@ -45,7 +47,14 @@ exports.login = async (companySlug, email, password) => {
       { expiresIn: "1d" }
     );
 
-    return token;
+    return {
+      token,
+      user: {
+        name: "Super Admin",
+        role: "SUPER_ADMIN",
+        department: "System"
+      }
+    };
   }
 
   /* ============================
@@ -65,6 +74,12 @@ exports.login = async (companySlug, email, password) => {
   const user = await User.findOne({
     companyId: company._id,
     email
+  }).populate({
+    path: "employeeId",
+    populate: {
+      path: "professional.departmentId",
+      select: "name"
+    }
   });
 
   if (!user) {
@@ -92,9 +107,22 @@ exports.login = async (companySlug, email, password) => {
     { expiresIn: "1d" }
   );
 
-  return token;
-};
+  const employee = user.employeeId;
 
+  const name = employee?.personal?.name || email;
+
+  const department =
+    employee?.professional?.departmentId?.name || "General";
+
+  return {
+    token,
+    user: {
+      name,
+      role: user.role,
+      department
+    }
+  };
+};
 
 /* =========================================
    REQUEST OTP

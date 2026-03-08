@@ -16,18 +16,19 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const token = await authService.login(
+    const result = await authService.login(
       companySlug || null,
       email,
       password
     );
 
-    res.json({ token });
+    res.json(result);
 
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
+
 
 /* =========================================
    REQUEST OTP
@@ -62,6 +63,7 @@ router.post("/request-otp", async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
+
 
 /* =========================================
    VERIFY OTP
