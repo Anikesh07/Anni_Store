@@ -6,9 +6,31 @@
 
 let employees = [];
 let filteredEmployees = [];
+let departments = [];
 let currentPage = 1;
 const pageSize = 10;
 let totalEmployees = 0;
+
+const roles = [
+"EMPLOYEE",
+"MANAGER",
+"HR",
+"COMPANY_OWNER"
+];
+
+const employmentTypes = [
+"FULL_TIME",
+"PART_TIME",
+"CONTRACT",
+"TRAINEE"
+];
+
+const statuses = [
+"INVITED",
+"ACTIVE",
+"TERMINATED",
+"BLACKLISTED"
+];
 
 
 /* =========================================
@@ -29,6 +51,25 @@ container.innerHTML = `
 <input id="employeeSearch"
 class="employee-search"
 placeholder="Search employee">
+
+<select id="filterRole">
+<option value="">Role</option>
+${roles.map(r=>`<option value="${r}">${r}</option>`).join("")}
+</select>
+
+<select id="filterDepartment">
+<option value="">Department</option>
+</select>
+
+<select id="filterType">
+<option value="">Employment Type</option>
+${employmentTypes.map(t=>`<option value="${t}">${t}</option>`).join("")}
+</select>
+
+<select id="filterStatus">
+<option value="">Status</option>
+${statuses.map(s=>`<option value="${s}">${s}</option>`).join("")}
+</select>
 
 <button id="addEmployeeBtn" class="btn-primary">
 + Add Employee
@@ -52,9 +93,52 @@ document
 .getElementById("employeeSearch")
 .addEventListener("input",handleSearch);
 
+document
+.getElementById("filterRole")
+.addEventListener("change",applyFilters);
+
+document
+.getElementById("filterDepartment")
+.addEventListener("change",applyFilters);
+
+document
+.getElementById("filterType")
+.addEventListener("change",applyFilters);
+
+document
+.getElementById("filterStatus")
+.addEventListener("change",applyFilters);
+
+await loadDepartments();
 await loadEmployees();
 
 };
+
+
+/* =========================================
+   LOAD DEPARTMENTS
+========================================= */
+
+async function loadDepartments(){
+
+try{
+
+const res = await api.get("/department");
+departments = res || [];
+
+const select = document.getElementById("filterDepartment");
+
+select.innerHTML += departments.map(d=>`
+<option value="${d._id}">${d.name}</option>
+`).join("");
+
+}catch(err){
+
+console.error("Department load failed",err);
+
+}
+
+}
 
 
 /* =========================================
@@ -90,6 +174,39 @@ document.getElementById("employeeTable").innerHTML=
 
 
 /* =========================================
+   FILTERS
+========================================= */
+
+function applyFilters(){
+
+const role = document.getElementById("filterRole").value;
+const department = document.getElementById("filterDepartment").value;
+const type = document.getElementById("filterType").value;
+const status = document.getElementById("filterStatus").value;
+
+filteredEmployees = employees.filter(emp=>{
+
+if(role && emp.user?.role !== role) return false;
+
+if(department &&
+emp.professional?.departmentId?._id !== department) return false;
+
+if(type &&
+emp.professional?.employmentType !== type) return false;
+
+if(status &&
+emp.employmentStatus !== status) return false;
+
+return true;
+
+});
+
+renderTable(filteredEmployees);
+
+}
+
+
+/* =========================================
    STATS
 ========================================= */
 
@@ -102,6 +219,9 @@ employees.filter(e=>e.employmentStatus==="ACTIVE").length;
 
 const invited =
 employees.filter(e=>e.employmentStatus==="INVITED").length;
+
+const terminated =
+employees.filter(e=>e.employmentStatus==="TERMINATED").length;
 
 stats.innerHTML=`
 
@@ -118,6 +238,11 @@ stats.innerHTML=`
 <div class="stat-card">
 <div class="stat-value">${invited}</div>
 <div class="stat-label">Invited</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-value">${terminated}</div>
+<div class="stat-label">Terminated</div>
 </div>
 
 `;
@@ -145,14 +270,18 @@ const rows=data.map(emp=>{
 
 const name=emp.personal?.name||"-";
 const email=emp.personal?.email||"-";
+const role=emp.user?.role||"-";
+const department=emp.professional?.departmentId?.name||"-";
 const type=emp.professional?.employmentType||"-";
 const status=emp.employmentStatus||"-";
 
 const initial=name.charAt(0).toUpperCase();
 
+const isTerminated = status==="TERMINATED";
+
 return`
 
-<tr>
+<tr class="${isTerminated?"terminated-row":""}">
 
 <td class="employee-name"
 onclick="openEmployeePanel('${emp._id}')">
@@ -163,7 +292,8 @@ onclick="openEmployeePanel('${emp._id}')">
 </td>
 
 <td>${email}</td>
-
+<td>${role}</td>
+<td>${department}</td>
 <td>${type}</td>
 
 <td>
@@ -174,6 +304,14 @@ ${status}
 
 <td class="employee-actions">
 
+${
+isTerminated
+?
+`<span class="terminated-reason">
+${emp.blacklistReason || "Terminated"}
+</span>`
+:
+`
 <button class="btn-secondary"
 onclick="event.stopPropagation(); openEmployeePanel('${emp._id}')">
 Edit
@@ -189,6 +327,8 @@ Hire
 onclick="event.stopPropagation(); terminateEmployee('${emp._id}')">
 Terminate
 </button>
+`
+}
 
 </td>
 
@@ -208,6 +348,8 @@ table.innerHTML=`
 <tr>
 <th>Name</th>
 <th>Email</th>
+<th>Role</th>
+<th>Department</th>
 <th>Employment Type</th>
 <th>Status</th>
 <th>Actions</th>
@@ -259,10 +401,8 @@ const container=document.getElementById("employeePagination");
 const totalPages=Math.ceil(totalEmployees/pageSize);
 
 if(totalPages<=1){
-
 container.innerHTML="";
 return;
-
 }
 
 let buttons="";
@@ -299,7 +439,7 @@ await loadEmployees();
 
 
 /* =========================================
-   ADD EMPLOYEE
+   ADD EMPLOYEE MODAL
 ========================================= */
 
 window.openAddEmployeeModal = function(){
@@ -327,7 +467,24 @@ box.innerHTML = `
 
 <div>
 <label>Email</label>
-<input name="email" type="email" required>
+<input name="email" required>
+</div>
+
+<div>
+<label>Role</label>
+<select name="role">
+${roles.map(r=>`<option value="${r}">${r}</option>`).join("")}
+</select>
+</div>
+
+<div>
+<label>Department</label>
+<select name="departmentId">
+${departments.map(d=>`
+<option value="${d._id}">
+${d.name}
+</option>`).join("")}
+</select>
 </div>
 
 <div>
@@ -340,7 +497,7 @@ box.innerHTML = `
 </div>
 
 <div>
-<label>Experience Level</label>
+<label>Experience</label>
 <select name="experienceLevel">
 <option value="JUNIOR">Junior</option>
 <option value="MID">Mid</option>
@@ -370,25 +527,18 @@ Create Employee
 
 modal.classList.remove("hidden");
 
-/* attach form handler */
-
-const form = document.getElementById("employeeForm");
-
-form.addEventListener("submit", submitEmployeeForm);
+document
+.getElementById("employeeForm")
+.addEventListener("submit",submitEmployeeForm);
 
 };
 
-/* =========================================
-   CLOSE MODAL
-========================================= */
 
-window.closeEmployeeModal = function(){
+window.closeEmployeeModal=function(){
 
-const modal = document.getElementById("globalModal");
-
-if(modal){
-modal.classList.add("hidden");
-}
+document
+.getElementById("globalModal")
+.classList.add("hidden");
 
 };
 
@@ -396,31 +546,31 @@ modal.classList.add("hidden");
 /* =========================================
    CREATE EMPLOYEE
 ========================================= */
+
 window.submitEmployeeForm = async function(e){
 
 e.preventDefault();
 
-const form = e.target;
-const data = new FormData(form);
+const form=e.target;
+const data=new FormData(form);
 
-const submitBtn = form.querySelector("button[type='submit']");
-submitBtn.disabled = true;
-submitBtn.innerText = "Creating...";
+const payload={
 
-const payload = {
+name:data.get("name"),
+email:data.get("email"),
+role:data.get("role"),
 
-name: data.get("name")?.trim(),
-email: data.get("email")?.trim(),
-employmentType: data.get("employmentType"),
-experienceLevel: data.get("experienceLevel")
+professional:{
+departmentId:data.get("departmentId"),
+employmentType:data.get("employmentType"),
+experienceLevel:data.get("experienceLevel")
+}
 
 };
 
-console.log("CREATE EMPLOYEE PAYLOAD:", payload);
-
 try{
 
-await api.post("/employee", payload);
+await api.post("/employee",payload);
 
 closeEmployeeModal();
 
@@ -430,21 +580,16 @@ await loadEmployees();
 
 }catch(err){
 
-console.error("Create employee failed", err);
-
-showToast(
-err.message || "Failed to create employee",
-"error"
-);
-
-submitBtn.disabled = false;
-submitBtn.innerText = "Create Employee";
+console.error(err);
+showToast(err.message,"error");
 
 }
 
 };
+
+
 /* =========================================
-   PANEL EDIT
+   EDIT PANEL
 ========================================= */
 
 window.openEmployeePanel = async function(id){
@@ -503,30 +648,50 @@ content:`
 <div class="form-grid">
 
 <div>
-<label>Employment Type</label>
-
-<select id="empType">
-
-<option value="TRAINEE">Trainee</option>
-<option value="FULL_TIME">Full Time</option>
-<option value="PART_TIME">Part Time</option>
-
+<label>Role</label>
+<select id="empRole">
+${roles.map(r=>`
+<option value="${r}" ${emp.user?.role===r?"selected":""}>
+${r}
+</option>
+`).join("")}
 </select>
-
 </div>
 
 <div>
+<label>Department</label>
+<select id="empDepartment">
+${departments.map(d=>`
+<option value="${d._id}"
+${emp.professional?.departmentId?._id===d._id?"selected":""}>
+${d.name}
+</option>
+`).join("")}
+</select>
+</div>
 
-<label>Experience</label>
+<div>
+<label>Employment Type</label>
+<select id="empType">
 
-<select id="empExp">
-
-<option value="JUNIOR">Junior</option>
-<option value="MID">Mid</option>
-<option value="SENIOR">Senior</option>
+<option value="TRAINEE" ${emp.professional?.employmentType==="TRAINEE"?"selected":""}>Trainee</option>
+<option value="FULL_TIME" ${emp.professional?.employmentType==="FULL_TIME"?"selected":""}>Full Time</option>
+<option value="PART_TIME" ${emp.professional?.employmentType==="PART_TIME"?"selected":""}>Part Time</option>
+<option value="CONTRACT" ${emp.professional?.employmentType==="CONTRACT"?"selected":""}>Contract</option>
 
 </select>
+</div>
 
+<div>
+<label>Experience</label>
+<select id="empExp">
+
+<option value="JUNIOR" ${emp.professional?.experienceLevel==="JUNIOR"?"selected":""}>Junior</option>
+<option value="MID" ${emp.professional?.experienceLevel==="MID"?"selected":""}>Mid</option>
+<option value="SENIOR" ${emp.professional?.experienceLevel==="SENIOR"?"selected":""}>Senior</option>
+<option value="LEAD" ${emp.professional?.experienceLevel==="LEAD"?"selected":""}>Lead</option>
+
+</select>
 </div>
 
 </div>
@@ -641,13 +806,11 @@ console.error("Panel failed",err);
    UPDATE EMPLOYEE
 ========================================= */
 
-window.updateEmployee = async function(id){
+window.updateEmployee=async function(id){
 
 try{
 
-/* PERSONAL + PROFESSIONAL */
-
-await api.put(`/employee/${id}`,{
+const payload={
 
 personal:{
 name:document.getElementById("empName").value,
@@ -657,51 +820,20 @@ address:document.getElementById("empAddress").value
 },
 
 professional:{
+departmentId:document.getElementById("empDepartment").value,
 employmentType:document.getElementById("empType").value,
 experienceLevel:document.getElementById("empExp").value
-}
+},
 
-});
+role:document.getElementById("empRole").value
 
+};
 
-/* SALARY UPDATE */
-
-await api.put(`/employee/salary/${id}`,{
-
-baseSalary:Number(
-document.getElementById("empSalary").value
-),
-
-bonus:Number(
-document.getElementById("empBonus").value
-),
-
-medicalAllowance:Number(
-document.getElementById("empMedical").value
-)
-
-});
-
-
-/* LEAVE UPDATE */
-
-await api.put(`/employee/${id}`,{
-
-leaveBalance:{
-total:Number(
-document.getElementById("empLeaveTotal").value
-),
-used:Number(
-document.getElementById("empLeaveUsed").value
-)
-}
-
-});
-
+await api.put(`/employee/${id}`,payload);
 
 Panel.close();
 
-showToast("Employee updated successfully");
+showToast("Employee updated");
 
 await loadEmployees();
 
@@ -712,7 +844,7 @@ showToast("Update failed","error");
 
 }
 
-}
+};
 
 
 /* =========================================
@@ -733,10 +865,12 @@ await loadEmployees();
 
 window.terminateEmployee=async function(id){
 
-if(!confirm("Terminate employee?")) return;
+const reason = prompt("Enter termination reason");
+
+if(!reason) return;
 
 await api.put(`/employee/terminate/${id}`,{
-reason:"Terminated by admin"
+reason
 });
 
 await loadEmployees();

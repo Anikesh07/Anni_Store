@@ -540,6 +540,7 @@ textarea {
    EMPLOYEE MODULE (SAAS STYLE)
 ========================================================= */
 
+
 /* =========================================
 GLOBAL LAYOUT
 ========================================= */
@@ -558,7 +559,7 @@ STATS
 
 .employee-stats{
 display:grid;
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:repeat(4,1fr);
 gap:18px;
 }
 
@@ -596,8 +597,8 @@ TOOLBAR
 .employee-toolbar{
 display:flex;
 align-items:center;
-justify-content:space-between;
-gap:12px;
+flex-wrap:wrap;
+gap:10px;
 }
 
 .employee-search{
@@ -609,7 +610,16 @@ font-size:13px;
 transition:.2s;
 }
 
-.employee-search:focus{
+.employee-toolbar select{
+padding:9px 12px;
+border:1px solid #e4e4e4;
+border-radius:8px;
+font-size:13px;
+background:white;
+}
+
+.employee-search:focus,
+.employee-toolbar select:focus{
 outline:none;
 border-color:#8b5e34;
 box-shadow:0 0 0 2px rgba(139,94,52,0.12);
@@ -677,8 +687,8 @@ gap:10px;
 }
 
 .employee-avatar{
-width:34px;
-height:34px;
+width:36px;
+height:36px;
 border-radius:50%;
 background:#8b5e34;
 color:white;
@@ -692,10 +702,6 @@ font-weight:600;
 .employee-name-text{
 font-weight:500;
 color:#222;
-}
-
-.employee-email{
-color:#666;
 }
 
 
@@ -728,6 +734,22 @@ color:#c0392b;
 .status-blacklisted{
 background:#f5e6e6;
 color:#7a1f1f;
+}
+
+
+/* =========================================
+TERMINATED ROW
+========================================= */
+
+.terminated-row{
+opacity:.6;
+background:#fff5f5;
+}
+
+.terminated-reason{
+color:#c0392b;
+font-size:12px;
+font-weight:600;
 }
 
 
@@ -884,8 +906,6 @@ box-shadow:0 0 0 2px rgba(139,94,52,0.12);
 }
 
 
-
-
 /* =========================================
 EMPTY STATE
 ========================================= */
@@ -895,6 +915,39 @@ text-align:center;
 padding:40px;
 font-size:13px;
 color:#777;
+}
+
+
+/* =========================================
+TABS
+========================================= */
+
+.employee-tabs{
+display:flex;
+gap:8px;
+margin-bottom:20px;
+}
+
+.tab-btn{
+border:none;
+background:#f3f3f3;
+padding:8px 14px;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+}
+
+.tab-btn.active{
+background:#8b5e34;
+color:white;
+}
+
+.tab-content{
+display:none;
+}
+
+.tab-content.active{
+display:block;
 }
 
 
@@ -923,30 +976,7 @@ grid-template-columns:1fr;
 
 }
 
-.employee-tabs{
-display:flex;
-gap:8px;
-margin-bottom:20px;
-}
-
-.tab-btn{
-border:none;
-background:#f3f3f3;
-padding:8px 14px;
-border-radius:6px;
-cursor:pointer;
-font-size:13px;
-}
-
-.tab-btn.active{
-background:#8b5e34;
-color:white;
-}
-
-.tab-content{
-display:none;
-}
-
-.tab-content.active{
-display:block;
+.pamel-content{
+padding:20px;
+max-width: 600px;
 }
