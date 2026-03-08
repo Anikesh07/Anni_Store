@@ -78,7 +78,7 @@ pnpm-debug.log*
 # ----------------------------------------
 # Large files & Models
 # ----------------------------------------
-models/
+anni-bot-widget/models/
 *.pth
 *.h5
 *.pkl
@@ -103,6 +103,7 @@ out/
 # ----------------------------------------
 later to do.txt
 Perfect 👍 startup.txt
+document/
 
 # ----------------------------------------
 # Testing
