@@ -11,11 +11,29 @@ This repository contains the source code for Anni Store, a web-based e-commerce 
 
 ## Screenshots
 
-Improvements and UI examples are stored in `assets/readme-screenshots/`.
+Image files are in `assets/readme-screenshots/`.
 
-![Anni Store Trending Items](assets/readme-screenshots/anni-store-trending-items.png)
+### Admin & Employee
 
-> Upload your images in `assets/readme-screenshots/` and reference them here.
+![Admin Employee Login](assets/readme-screenshots/Admin_Employee-login.png)
+![Employee Management](assets/readme-screenshots/employee-mangment.png)
+![Employee Add Terminate](assets/readme-screenshots/employee-add-terminate.png)
+![Add/Remove Button](assets/readme-screenshots/Add-remov-button.png)
+![Folder Structure](assets/readme-screenshots/seprate folder structre.png)
+
+### Product & Store
+
+![Anni Store Home](assets/readme-screenshots/Anni-store.png)
+![Buying Page](assets/readme-screenshots/Buying-page.png)
+![Product Overview](assets/readme-screenshots/product-overview.png)
+![Product View](assets/readme-screenshots/product-view.png)
+![Product Edit](assets/readme-screenshots/product-edit.png)
+![Wishlist and Cart](assets/readme-screenshots/wishlist-cart.png)
+
+### Chatbot
+
+![Chatbot 1](assets/readme-screenshots/Chat-bot%231.png)
+![Chatbot 2](assets/readme-screenshots/Chat-bot%232.png)
 
 ## Getting Started
 
