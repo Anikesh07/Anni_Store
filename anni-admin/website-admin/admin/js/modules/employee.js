@@ -444,60 +444,74 @@ await loadEmployees();
 
 window.openAddEmployeeModal = function(){
 
-const modal = document.getElementById("globalModal");
-const box = document.getElementById("modalBox");
+let modal = document.getElementById("empModalOverlay");
+
+if(!modal){
+document.body.insertAdjacentHTML("beforeend",`
+
+<div id="empModalOverlay" class="emp-modal-overlay">
+
+<div id="empModalBox"></div>
+
+</div>
+
+`);
+modal = document.getElementById("empModalOverlay");
+}
+
+const box = document.getElementById("empModalBox");
 
 box.innerHTML = `
 
-<div class="modal">
+<div class="emp-create-modal">
 
-<div class="modal-header">
-<h3>Add Employee</h3>
+<div class="emp-create-header">
+<h3>Create Employee</h3>
 <button onclick="closeEmployeeModal()">✕</button>
 </div>
 
-<form id="employeeForm" class="employee-form">
+<form id="empCreateForm" class="emp-create-form">
 
-<div class="form-grid">
+<div class="emp-create-grid">
 
-<div>
-<label>Name</label>
+<div class="emp-field">
+<label>Full Name</label>
 <input name="name" required>
 </div>
 
-<div>
+<div class="emp-field">
 <label>Email</label>
-<input name="email" required>
+<input type="email" name="email" required>
 </div>
 
-<div>
+<div class="emp-field">
 <label>Role</label>
 <select name="role">
 ${roles.map(r=>`<option value="${r}">${r}</option>`).join("")}
 </select>
 </div>
 
-<div>
+<div class="emp-field">
 <label>Department</label>
 <select name="departmentId">
 ${departments.map(d=>`
-<option value="${d._id}">
-${d.name}
-</option>`).join("")}
+<option value="${d._id}">${d.name}</option>
+`).join("")}
 </select>
 </div>
 
-<div>
+<div class="emp-field">
 <label>Employment Type</label>
 <select name="employmentType">
 <option value="TRAINEE">Trainee</option>
 <option value="FULL_TIME">Full Time</option>
 <option value="PART_TIME">Part Time</option>
+<option value="CONTRACT">Contract</option>
 </select>
 </div>
 
-<div>
-<label>Experience</label>
+<div class="emp-field">
+<label>Experience Level</label>
 <select name="experienceLevel">
 <option value="JUNIOR">Junior</option>
 <option value="MID">Mid</option>
@@ -507,13 +521,13 @@ ${d.name}
 
 </div>
 
-<div class="modal-actions">
+<div class="emp-create-actions">
 
-<button type="button" onclick="closeEmployeeModal()">
+<button type="button" onclick="closeEmployeeModal()" class="emp-btn-light">
 Cancel
 </button>
 
-<button type="submit" class="btn-primary">
+<button type="submit" class="emp-btn-primary">
 Create Employee
 </button>
 
@@ -525,20 +539,22 @@ Create Employee
 
 `;
 
-modal.classList.remove("hidden");
+modal.classList.add("open");
 
 document
-.getElementById("employeeForm")
+.getElementById("empCreateForm")
 .addEventListener("submit",submitEmployeeForm);
 
 };
 
 
-window.closeEmployeeModal=function(){
+window.closeEmployeeModal = function(){
 
-document
-.getElementById("globalModal")
-.classList.add("hidden");
+const modal = document.getElementById("empModalOverlay");
+
+if(modal){
+modal.classList.remove("open");
+}
 
 };
 
@@ -863,17 +879,89 @@ await loadEmployees();
    TERMINATE
 ========================================= */
 
-window.terminateEmployee=async function(id){
+window.terminateEmployee = function(id){
 
-const reason = prompt("Enter termination reason");
+let modal = document.getElementById("empModalOverlay");
 
-if(!reason) return;
+if(!modal){
+document.body.insertAdjacentHTML("beforeend",`
+
+<div id="empModalOverlay" class="emp-modal-overlay">
+<div id="empModalBox"></div>
+</div>
+
+`);
+modal = document.getElementById("empModalOverlay");
+}
+
+const box = document.getElementById("empModalBox");
+
+box.innerHTML = `
+
+<div class="emp-create-modal">
+
+<div class="emp-create-header">
+<h3>Terminate Employee</h3>
+<button onclick="closeEmployeeModal()">✕</button>
+</div>
+
+<div class="emp-create-form">
+
+<div class="emp-field">
+<label>Reason for termination</label>
+<textarea id="terminateReason" rows="4"></textarea>
+</div>
+
+<div class="emp-create-actions">
+
+<button onclick="closeEmployeeModal()" class="emp-btn-light">
+Cancel
+</button>
+
+<button class="emp-btn-primary"
+onclick="confirmTerminateEmployee('${id}')">
+Terminate
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+modal.classList.add("open");
+
+};
+
+window.confirmTerminateEmployee = async function(id){
+
+const reason = document.getElementById("terminateReason").value;
+
+if(!reason){
+showToast("Please enter termination reason","error");
+return;
+}
+
+try{
 
 await api.put(`/employee/terminate/${id}`,{
 reason
 });
 
+closeEmployeeModal();
+
+showToast("Employee terminated");
+
 await loadEmployees();
+
+}catch(err){
+
+console.error(err);
+showToast("Termination failed","error");
+
+}
 
 };
 

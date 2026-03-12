@@ -182,26 +182,27 @@
 /* MODAL OVERLAY */
 
 .modal-overlay{
-position: fixed;
+position:fixed;
 top:0;
 left:0;
 width:100%;
 height:100%;
 background:rgba(0,0,0,0.45);
-display:none;
+
+display:flex;
 justify-content:center;
 align-items:center;
-z-index:9999;
+
+z-index:9998;
+opacity:0;
+pointer-events:none;
+
+transition:0.2s;
 }
 
 .modal-overlay.active{
-display:flex;
-}
-
-/* HIDDEN STATE */
-
-.modal-overlay.hidden{
-display:none;
+opacity:1;
+pointer-events:auto;
 }
 
 /* MODAL BOX */
@@ -988,4 +989,209 @@ grid-template-columns:1fr;
 .pamel-content{
 padding:20px;
 max-width: 600px;
+}
+
+
+/* =========================
+EMPLOYEE MODAL SYSTEM
+========================= */
+
+.emp-modal-overlay{
+
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+
+background:rgba(0,0,0,0.45);
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+opacity:0;
+pointer-events:none;
+
+transition:0.2s;
+
+z-index:11000;
+
+}
+
+.emp-modal-overlay.open{
+
+opacity:1;
+pointer-events:auto;
+
+}
+
+
+/* MODAL BOX */
+
+.emp-create-modal{
+
+background:white;
+width:640px;
+max-width:95%;
+
+border-radius:14px;
+padding:28px;
+
+box-shadow:0 20px 50px rgba(0,0,0,0.15);
+
+animation:empModalFade .25s ease;
+
+}
+
+
+/* HEADER */
+
+.emp-create-header{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+margin-bottom:22px;
+
+}
+
+.emp-create-header h3{
+
+font-size:20px;
+font-weight:600;
+
+}
+
+.emp-create-header button{
+
+border:none;
+background:none;
+font-size:20px;
+cursor:pointer;
+
+}
+
+
+/* FORM */
+
+.emp-create-form{
+
+display:flex;
+flex-direction:column;
+gap:22px;
+
+}
+
+.emp-create-grid{
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:18px;
+
+}
+
+.emp-field{
+
+display:flex;
+flex-direction:column;
+gap:6px;
+
+}
+
+.emp-field label{
+
+font-size:12px;
+color:#666;
+font-weight:500;
+
+}
+
+.emp-field input,
+.emp-field select{
+
+padding:10px 12px;
+border:1px solid #e5e5e5;
+border-radius:8px;
+font-size:14px;
+
+}
+
+.emp-field input:focus,
+.emp-field select:focus{
+
+outline:none;
+border-color:#8b5e34;
+box-shadow:0 0 0 2px rgba(139,94,52,0.12);
+
+}
+
+
+/* ACTIONS */
+
+.emp-create-actions{
+
+display:flex;
+justify-content:flex-end;
+gap:12px;
+margin-top:10px;
+
+}
+
+.emp-btn-primary{
+
+background:#8b5e34;
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+cursor:pointer;
+
+}
+
+.emp-btn-light{
+
+background:#f3f3f3;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+cursor:pointer;
+
+}
+
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+.emp-create-grid{
+grid-template-columns:1fr;
+}
+
+}
+
+
+/* ANIMATION */
+
+@keyframes empModalFade{
+
+from{
+opacity:0;
+transform:translateY(-10px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+.emp-field textarea{
+padding:10px 12px;
+border:1px solid #e5e5e5;
+border-radius:8px;
+font-size:14px;
+resize:vertical;
 }
