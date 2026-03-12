@@ -37,14 +37,90 @@ Image files are in `assets/readme-screenshots/`.
 
 ## Getting Started
 
-### Prerequisites & Dependencies
+### Prerequisites & Dependencies (Global)
 
-- **Node.js** (version 14+ recommended) for backend services.
-- **MongoDB** (local or remote) for database storage.
-- **Rasa Open Source** (2.x or newer) for the chatbot widget.
-- Any static web server (e.g. `http-server`, nginx) for serving frontend files.
+- **Node.js** (version 14+ recommended)
+- **npm** (comes with Node.js)
+- **MongoDB** (local or remote)
+- **Python 3.8+** and **pip** for Rasa chatbot
+- **Rasa Open Source** (2.x or newer)
+- Optional: **http-server** or any static web server
 
-Before running any part of the project, make sure the above software is installed and available in your `PATH`.
+> Tip: Run `node -v`, `npm -v`, `mongo --version`, `python --version`, `pip --version` to verify installations.
+
+### Installation and Folder-Specific Dependencies
+
+#### 1. Backend (anni-db-backend)
+
+1. Open terminal in `anni-db-backend/`
+2. Run:
+   ```powershell
+   npm install
+   ```
+3. Configure environment variables by copying `.env.example` to `.env` and setting values:
+   - `MONGO_URI`
+   - `PORT`
+   - `JWT_SECRET`
+   - `EMAIL_USER`, `EMAIL_PASSWORD` (if email is used)
+
+4. Start server:
+   ```powershell
+   npm start
+   # or
+   node app.js
+   # or for development:
+   npx nodemon app.js
+   ```
+
+#### 2. Admin Dashboard (anni-admin/website-admin)
+
+No npm dependencies required for vanilla HTML/CSS/JS, but to run locally:
+
+```powershell
+npx http-server anni-admin/website-admin -p 8081
+```
+
+#### 3. Frontend Store (AnniStore)
+
+No npm dependencies required for vanilla HTML/CSS/JS, but to run locally:
+
+```powershell
+npx http-server AnniStore -p 8080
+```
+
+- Ensure `AnniStore/js/api.js` base URL matches backend address.
+
+#### 4. Bot Widget (anni-bot-widget)
+
+1. Open terminal in `anni-bot-widget/`
+2. Create virtual environment:
+   ```powershell
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1
+   ```
+3. Install Rasa dependencies:
+   ```powershell
+   pip install rasa
+   ```
+4. Train and run:
+   ```powershell
+   rasa train
+   rasa run actions
+   rasa run --enable-api
+   ```
+
+### Run order (recommended)
+
+1. Start MongoDB.
+2. Start backend (`anni-db-backend`).
+3. Start admin site and storefront via local static servers.
+4. Start Rasa bot widget.
+
+### Troubleshooting
+
+- If `mongod` is not found, install MongoDB and ensure it is running.
+- If ports are in use, change `PORT` in `.env` and server command ports.
+- Check browser console and network tab for API request errors.
 
 ### 1. Admin Dashboard
 
