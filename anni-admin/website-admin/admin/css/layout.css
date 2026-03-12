@@ -4,13 +4,13 @@
 
 body {
   margin: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   font-family: inherit;
 }
-
 .layout {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   background: #f7f5f2;
 }
 
@@ -169,9 +169,7 @@ body {
   margin-left: 240px;
   width: calc(100% - 240px);
   height: 100vh;
-
   padding: 28px 36px;
-
   overflow-y: auto;
   overflow-x: hidden;
 }

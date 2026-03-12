@@ -9,7 +9,7 @@ let deleteTargetId = null;
 let bulkMode = false;
 
 let currentPage = 1;
-const itemsPerPage = 50;
+const itemsPerPage = 20;
 
 const API_BASE = "http://localhost:4000/products";
 const SERVER_BASE = "http://localhost:4000";
@@ -84,7 +84,6 @@ async function loadProductsModule() {
 
       ${getProductModalHTML()}
       ${getConfirmModalHTML()}
-      <div id="toastContainer" class="toast-container"></div>
     `;
 
     initializeProductModule();
@@ -117,7 +116,7 @@ function generateSkeletonRows(count) {
 ========================================================= */
 function getProductModalHTML() {
   return `
-  <div class="modal-overlay" id="productModal">
+  <div class="modal-overlay product-overlay" id="productModal">
     <div class="modal product-modal">
 
       <div class="modal-header">
@@ -176,7 +175,7 @@ function getProductModalHTML() {
 ========================================================= */
 function getConfirmModalHTML() {
   return `
-  <div class="modal-overlay" id="confirmModal">
+  <div class="modal-overlay product-overlay" id="confirmModal">
     <div class="modal confirm-modal">
       <h3>Delete Product?</h3>
       <div class="confirm-actions">
@@ -714,7 +713,7 @@ async function handleSingleDelete() {
         fetch(`${API_BASE}/${id}`, {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+            Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`
           }
         })
       )
@@ -742,7 +741,7 @@ async function handleSingleDelete() {
   await fetch(`${API_BASE}/${deleteTargetId}`, {
     method: "DELETE",
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+      Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`
     }
   });
 
@@ -838,7 +837,7 @@ async function handleSubmit(e) {
       {
         method: editingId ? "PUT" : "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+          Authorization: `Bearer ${sessionStorage.getItem("adminToken")}`
         },
         body: formData
       }
