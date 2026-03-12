@@ -9,6 +9,14 @@ This repository contains the source code for Anni Store, a web-based e-commerce 
 - `anni-db-backend/` - Node.js backend for handling authentication, product management, and database interactions.
 - `AnniStore/` - Frontend storefront assets, pages, and scripts for the customer-facing site.
 
+## Screenshots
+
+Improvements and UI examples are stored in `assets/readme-screenshots/`.
+
+![Anni Store Trending Items](assets/readme-screenshots/anni-store-trending-items.png)
+
+> Upload your images in `assets/readme-screenshots/` and reference them here.
+
 ## Getting Started
 
 ### Prerequisites & Dependencies
