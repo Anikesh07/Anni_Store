@@ -519,6 +519,30 @@ Contains CRUD and helper functions:
 - **getBestProduct(params)** – selects the single highest-rated product under a budget.
 - **compareProducts(names)** – finds products whose titles match any of the provided names.
 
+## Today’s Updates (Minor Fixes and Missing Items)
+
+- **Date:** 2026-03-13
+- **Commit references:** `2fd6370`, `a28f11b`, `f73995a`
+
+### What was added
+- Employee management UI update: employee modal, termination actions, and secure status transitions.
+- Auth enhancement: user context stored in token and persisted with session.
+- Layout refinements: improved modals, product module responsiveness, and dashboard layout tweaks.
+
+### Bug fixes completed
+- Fixed admin panel modal overlay issue that blocked action buttons.
+- Resolved product listing where `stock` value was undefined in some client responses.
+- Corrected attendance date rendering in the history table (fixed timezone mismatch).
+- Fixed missing error handling during leave request approval edge cases.
+- Added missing model field validations and improved backend error responses across HR/payroll routes.
+
+### Readme coverage updates
+- Added “Today’s Updates” section for quick changelog reference.
+- Confirmed API endpoint list now includes current employee/attendance/leave/payroll routes and missing product routes.
+- Documented completed fixes and outstanding items needing QA.
+
+> 💡 Note: For developer workflow consistency, please include this section on every significant push, with a short bullet summary and commit IDs.
+
 #### Database Utilities
 - **config/db.js** – `connectMongo()` asynchronously connects to MongoDB using `mongoose`.
 - **utils/sendEmail.js** – wrapper around `nodemailer` configured for Gmail, used for sending OTPs and notifications.
