@@ -1,6 +1,7 @@
 const axios = require("axios");
-const connectMongo = require("../config/mongo");
+const connectMongo = require("../config/db");
 const Product = require("../models/product.model");
+
 
 const FAKE_API = "https://fakestoreapi.com/products";
 const DUMMY_API = "https://dummyjson.com/products?limit=200";

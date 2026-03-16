@@ -1,0 +1,7 @@
+# Python dependencies for the anni-bot-widget (Rasa chatbot)
+# Install with:
+#   pip install -r anni-bot-requirnmet.txt
+
+rasa>=3.0.0,<4.0.0
+rasa-sdk>=3.0.0,<4.0.0
+requests>=2.0.0
