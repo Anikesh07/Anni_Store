@@ -5,6 +5,7 @@ import requests
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
+from rasa_sdk.events import SlotSet
 
 # ==============================
 # CONFIG
@@ -275,3 +276,74 @@ class ActionCompareProducts(Action):
             f"✅ **Best Choice:** {better['title']}"
         )
         return []
+
+class ActionProductSearch(Action):
+    
+def name(self) -> str:
+    return "action_product_search"
+
+async def run(self, dispatcher, tracker, domain):
+
+    text = extract_text(tracker)
+
+    category = extract_category(text)
+    budget = extract_number(text)
+    keywords = extract_keywords(text)
+
+    params = {}
+
+    if category:
+        params["category"] = category
+
+    if budget:
+        params["maxPrice"] = budget
+
+    if keywords:
+        params["q"] = " ".join(keywords)
+
+    products = api_get(f"{ANNI_DB_API}/search", params)
+
+    if not products:
+        dispatcher.utter_message("😕 I couldn't find products matching that.")
+        return []
+
+    msg = "🛍️ **Here are some products:**\n\n"
+
+    for i, p in enumerate(products[:5], start=1):
+        msg += (
+            f"{i}. **{p['title']}**\n"
+            f"💰 ₹{p['price']} | ⭐ {p.get('rating', 0)}\n\n"
+        )
+
+    dispatcher.utter_message(msg)
+
+    # SAVE PRODUCTS IN MEMORY
+    return [SlotSet("last_products", products[:5])]
+
+
+class ActionCompareFromMemory(Action):
+    
+def name(self) -> str:
+    return "action_compare_from_memory"
+
+async def run(self, dispatcher, tracker, domain):
+
+    products = tracker.get_slot("last_products")
+
+    if not products or len(products) < 2:
+        dispatcher.utter_message("I don't have products to compare yet.")
+        return []
+
+    a = products[0]
+    b = products[1]
+
+    better = a if a.get("rating", 0) >= b.get("rating", 0) else b
+
+    dispatcher.utter_message(
+        f"🔍 **Comparison**\n\n"
+        f"{a['title']} → ₹{a['price']} | ⭐ {a.get('rating',0)}\n"
+        f"{b['title']} → ₹{b['price']} | ⭐ {b.get('rating',0)}\n\n"
+        f"🏆 **Best Choice:** {better['title']}"
+    )
+
+    return []

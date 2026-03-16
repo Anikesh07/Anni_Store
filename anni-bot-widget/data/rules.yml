@@ -89,3 +89,13 @@ rules:
   steps:
     - intent: nlu_fallback
     - action: utter_fallback
+
+- rule: product search
+  steps:
+    - intent: product_search
+    - action: action_product_search
+
+- rule: compare memory products
+  steps:
+    - intent: compare_memory
+    - action: action_compare_from_memory

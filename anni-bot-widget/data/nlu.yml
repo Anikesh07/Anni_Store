@@ -181,3 +181,29 @@ nlu:
     - qwerty
     - blah blah
     - I don’t know what to say
+
+
+- intent: product_search
+  examples: |
+    - show laptops
+    - show phones under 20000
+    - find gaming laptops
+    - search samsung phones
+    - show dresses
+    - list available laptops
+    - show electronics products
+    - show best laptops
+    - phones below 20000
+    - find phones under 20k
+    - cheap phones under 20000
+    - budget phones under 20000
+    - show laptops under 70000
+    - laptops below 70000
+    - affordable laptops
+
+- intent: compare_memory
+  examples: |
+    - compare first two
+    - compare them
+    - compare these products
+    - which one is better
