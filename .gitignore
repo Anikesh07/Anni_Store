@@ -43,6 +43,12 @@ config.yml
 domain.yml
 endpoints.yml
 
+# Allow bot widget config files in repo
+!anni-bot-widget/credentials.yml
+!anni-bot-widget/config.yml
+!anni-bot-widget/domain.yml
+!anni-bot-widget/endpoints.yml
+
 # ----------------------------------------
 # Uploaded files & user-generated content
 # ----------------------------------------
