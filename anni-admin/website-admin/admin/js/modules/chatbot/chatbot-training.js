@@ -2,9 +2,11 @@
    CHATBOT TRAINING
 ========================================= */
 
-async function loadChatbotTraining() {
+window.loadChatbotTraining = async function () {
 
   const container = document.getElementById("chatbot-tab-content");
+
+  if (!container) return;
 
   container.innerHTML = `
 
@@ -19,7 +21,5 @@ async function loadChatbotTraining() {
     </button>
 
   </div>
-
   `;
-
-}
+};

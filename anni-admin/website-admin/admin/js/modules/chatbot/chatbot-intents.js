@@ -2,9 +2,11 @@
    CHATBOT INTENTS
 ========================================= */
 
-async function loadChatbotIntents() {
+window.loadChatbotIntents = async function () {
 
   const container = document.getElementById("chatbot-tab-content");
+
+  if (!container) return;
 
   container.innerHTML = `
   
@@ -20,5 +22,4 @@ async function loadChatbotIntents() {
 
   </div>
   `;
-
-}
+};

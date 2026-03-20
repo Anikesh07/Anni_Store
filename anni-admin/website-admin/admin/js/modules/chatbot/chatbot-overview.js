@@ -1,87 +1,22 @@
 /* =========================================
-   CHATBOT MAIN MODULE
+   CHATBOT OVERVIEW MODULE
 ========================================= */
 
-async function loadChatbotModule() {
+window.loadChatbotOverview = async function () {
 
-  const section = document.getElementById("chatbot");
+  console.log("✅ Chatbot Overview Loaded");
 
-  if (!section) return;
+  const container = document.getElementById("chatbot-tab-content");
 
-  section.innerHTML = `
-  
-  <div class="chatbot-wrapper">
+  if (!container) {
+    console.error("❌ chatbot-tab-content not found");
+    return;
+  }
 
+  container.innerHTML = `
     <div class="dashboard-card">
-
-      <h2>Chatbot Control Center</h2>
-      <p>Manage AI assistant and training</p>
-
-      <div class="chatbot-tabs">
-
-        <button class="chatbot-tab-btn active" data-tab="overview">
-          Overview
-        </button>
-
-        <button class="chatbot-tab-btn" data-tab="intents">
-          Intents
-        </button>
-
-        <button class="chatbot-tab-btn" data-tab="training">
-          Training
-        </button>
-
-        <button class="chatbot-tab-btn" data-tab="conversations">
-          Conversations
-        </button>
-
-        <button class="chatbot-tab-btn" data-tab="settings">
-          Settings
-        </button>
-
-      </div>
-
-      <div id="chatbot-tab-content"></div>
-
+      <h2>Chatbot Overview</h2>
+      <p>Bot is working 🚀</p>
     </div>
-
-  </div>
   `;
-
-  chatbotBindTabs();
-
-  loadChatbotOverview();
-
-}
-
-window.loadChatbotModule = loadChatbotModule;
-
-
-/* =========================================
-   TAB HANDLER
-========================================= */
-
-function chatbotBindTabs() {
-
-  const buttons = document.querySelectorAll(".chatbot-tab-btn");
-
-  buttons.forEach(btn => {
-
-    btn.addEventListener("click", () => {
-
-      buttons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      const tab = btn.dataset.tab;
-
-      if (tab === "overview") loadChatbotOverview();
-      if (tab === "intents") loadChatbotIntents();
-      if (tab === "training") loadChatbotTraining();
-      if (tab === "conversations") loadChatbotConversations();
-      if (tab === "settings") loadChatbotSettings();
-
-    });
-
-  });
-
-}
+};    

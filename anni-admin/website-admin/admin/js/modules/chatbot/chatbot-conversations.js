@@ -2,9 +2,11 @@
    CHATBOT CONVERSATIONS
 ========================================= */
 
-async function loadChatbotConversations() {
+window.loadChatbotConversations = async function () {
 
   const container = document.getElementById("chatbot-tab-content");
+
+  if (!container) return;
 
   container.innerHTML = `
   
@@ -15,7 +17,5 @@ async function loadChatbotConversations() {
     <div id="chatbot-conversation-table"></div>
 
   </div>
-
   `;
-
-}
+};

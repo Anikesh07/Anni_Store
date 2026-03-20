@@ -2,11 +2,14 @@
    CHATBOT MAIN MODULE
 ========================================= */
 
-async function loadChatbotModule() {
+window.loadChatbotModule = async function () {
 
   const section = document.getElementById("chatbot");
 
-  if (!section) return;
+  if (!section) {
+    console.error("❌ Chatbot section not found");
+    return;
+  }
 
   section.innerHTML = `
   
@@ -41,6 +44,7 @@ async function loadChatbotModule() {
 
       </div>
 
+      <!-- CONTENT AREA -->
       <div id="chatbot-tab-content"></div>
 
     </div>
@@ -50,11 +54,10 @@ async function loadChatbotModule() {
 
   chatbotBindTabs();
 
-  loadChatbotOverview();
+  // Safe load default tab
+  chatbotLoadTab("overview");
+};
 
-}
-
-window.loadChatbotModule = loadChatbotModule;
 
 
 /* =========================================
@@ -74,14 +77,45 @@ function chatbotBindTabs() {
 
       const tab = btn.dataset.tab;
 
-      if (tab === "overview") loadChatbotOverview();
-      if (tab === "intents") loadChatbotIntents();
-      if (tab === "training") loadChatbotTraining();
-      if (tab === "conversations") loadChatbotConversations();
-      if (tab === "settings") loadChatbotSettings();
+      chatbotLoadTab(tab);
 
     });
 
   });
 
 }
+
+
+
+/* =========================================
+   TAB ROUTER (CLEAN VERSION)
+========================================= */
+
+function chatbotLoadTab(tab) {
+
+  const map = {
+    overview: window.loadChatbotOverview,
+    intents: window.loadChatbotIntents,
+    training: window.loadChatbotTraining,
+    conversations: window.loadChatbotConversations,
+    settings: window.loadChatbotSettings
+  };
+
+  const fn = map[tab];
+
+  if (typeof fn === "function") {
+    fn();
+  } else {
+    console.error(`❌ Tab loader not found for: ${tab}`);
+
+    const container = document.getElementById("chatbot-tab-content");
+    if (container) {
+      container.innerHTML = `
+        <div class="dashboard-card">
+          Failed to load "${tab}" module.
+        </div>
+      `;
+    }
+  }
+
+} 

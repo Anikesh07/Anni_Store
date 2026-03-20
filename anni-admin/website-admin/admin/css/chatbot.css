@@ -292,3 +292,69 @@
     box-shadow:0 6px 18px rgba(0,0,0,0.2);
 
 }
+
+/* =============================
+   CHATBOT HEADER IMPROVEMENT
+============================= */
+
+.chatbot-wrapper h2 {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.chatbot-wrapper p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* =============================
+   TAB CONTAINER POLISH
+============================= */
+
+.chatbot-tabs {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 10px;
+}
+
+.chatbot-tab-btn {
+    position: relative;
+}
+
+.chatbot-tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #4f46e5;
+}
+
+
+/* =============================
+   CARD ENHANCEMENT
+============================= */
+
+.chatbot-wrapper .dashboard-card {
+    border-radius: 14px;
+    padding: 20px;
+}
+
+
+/* =============================
+   BUTTON CONSISTENCY
+============================= */
+
+.btn-primary {
+    background: #4f46e5;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #4338ca;
+}   
