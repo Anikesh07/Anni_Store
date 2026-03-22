@@ -638,6 +638,43 @@ Contains CRUD and helper functions:
 - Fixed missing error handling during leave request approval edge cases.
 - Added missing model field validations and improved backend error responses across HR/payroll routes.
 
+### Major bug fix on role imporovement login
+
+
+🔐 Role & Authentication System Improvements
+
+The authentication and role management system has been refactored to ensure accurate role handling, consistent data flow, and improved separation between user and employee entities.
+
+Previously, role information displayed on the dashboard was inconsistent due to reliance on static local storage data and improper mapping between the User and Employee models. Additionally, all users were treated as employees on the frontend, which caused failures when handling non-employee roles such as SUPER_ADMIN.
+
+This update introduces a more robust and scalable approach:
+
+The JWT token now includes a properly formatted employeeId for employee-based users.
+A clear distinction has been established between system-level users (e.g., SUPER_ADMIN) and employee-based users.
+The dashboard dynamically determines whether to fetch user data from the /employee/me API or fallback to token-based data.
+Backend authentication middleware has been enhanced to reliably attach employeeId to the request context.
+Role information is now consistently derived from the database via proper population of roleId.
+✅ Key Fixes
+Fixed incorrect role display (e.g., COMPANY_OWNER showing as EMPLOYEE)
+Resolved /employee/me API failures for users without an employee record
+Corrected JWT payload to include employeeId as a valid string ID
+Fixed mismatch between User.role and Employee.user.role
+Ensured frontend no longer depends on stale localStorage role data
+Improved handling of SUPER_ADMIN login flow
+🚀 Advantages
+Accurate Role Representation
+Roles are now always fetched from the database, ensuring consistency across the system.
+Better System Design
+Clear separation between authentication (User) and HR data (Employee) improves scalability.
+Improved Stability
+Eliminates runtime errors caused by missing employee data.
+Future-Ready Architecture
+Supports expansion into RBAC (Role-Based Access Control), permissions, and multi-role systems.
+Cleaner Frontend Logic
+Conditional data fetching avoids unnecessary API calls and reduces failure points.
+
+
+
 ### Readme coverage updates
 - Added “Today’s Updates” section for quick changelog reference.
 - Confirmed API endpoint list now includes current employee/attendance/leave/payroll routes and missing product routes.
