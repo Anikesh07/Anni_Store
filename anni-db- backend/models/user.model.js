@@ -21,10 +21,11 @@ const userSchema = new mongoose.Schema(
       type: String
     },
 
-    role: {
-      type: String,
-      enum: ["SUPER_ADMIN", "COMPANY_OWNER", "HR", "MANAGER", "EMPLOYEE"],
-      required: true
+    // 🔥 Role Reference (RBAC)
+    roleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
+      default: null
     },
 
     companyId: {
@@ -57,18 +58,23 @@ userSchema.index({ companyId: 1, email: 1 }, { unique: true });
    VALIDATION LOGIC
 ========================================= */
 userSchema.pre("validate", function (next) {
-  if (this.role === "SUPER_ADMIN") {
+
+  // 🔥 SUPER ADMIN → no roleId, no company, no employee
+  if (!this.roleId) {
     this.companyId = null;
     this.employeeId = null;
-  } else {
-    if (!this.companyId || !this.employeeId) {
-      return next(
-        new Error(
-          "companyId and employeeId are required for non-super admin users"
-        )
-      );
-    }
+    return next();
   }
+
+  // ✅ NORMAL USERS → must have company + employee
+  if (!this.companyId || !this.employeeId) {
+    return next(
+      new Error(
+        "companyId and employeeId are required for non-super admin users"
+      )
+    );
+  }
+
   next();
 });
 

@@ -12,7 +12,7 @@ async function seedSystem() {
   console.log("🌱 Running system seed...");
 
   /* =====================================
-     SUPER ADMIN (ALWAYS ENSURED)
+     SUPER ADMIN (GLOBAL)
   ===================================== */
 
   const adminEmail = "anni123@gmail.com";
@@ -27,19 +27,13 @@ async function seedSystem() {
     superAdmin = await User.create({
       email: adminEmail,
       password: passwordHash,
-      role: "SUPER_ADMIN",
       accountStatus: "ACTIVE"
+      // roleId = null → handled as SUPER ADMIN in middleware
     });
 
     console.log("✅ SUPER_ADMIN created");
 
   } else {
-
-    if (superAdmin.role !== "SUPER_ADMIN") {
-      superAdmin.role = "SUPER_ADMIN";
-      await superAdmin.save();
-    }
-
     console.log("SUPER_ADMIN already exists");
   }
 
@@ -66,10 +60,10 @@ async function seedSystem() {
   }
 
   /* =====================================
-     DEFAULT DEPARTMENTS
+     DEPARTMENTS
   ===================================== */
 
-  const departments = ["HR", "Engineering", "Sales", "Finance"];
+  const departments = ["HR", "Engineering", "Sales", "Finance", "Chatbot"];
 
   for (const dept of departments) {
 
@@ -79,7 +73,6 @@ async function seedSystem() {
     });
 
     if (!exists) {
-
       await Department.create({
         name: dept,
         companyId: company._id
@@ -87,6 +80,102 @@ async function seedSystem() {
 
       console.log(`✅ Department created: ${dept}`);
     }
+  }
+
+  /* =====================================
+     ROLES + PERMISSIONS (UPDATE SAFE)
+  ===================================== */
+
+  const roles = [
+
+    {
+      name: "COMPANY_OWNER",
+      permissions: ["ADMIN_ALL"]
+    },
+
+    {
+      name: "COMPANY_CEO",
+      permissions: ["ADMIN_ALL"]
+    },
+
+    {
+      name: "HR",
+      permissions: [
+        "EMPLOYEE_CREATE",
+        "EMPLOYEE_EDIT",
+        "EMPLOYEE_VIEW",
+        "PAYROLL_VIEW",
+        "LEAVE_APPROVE"
+      ]
+    },
+
+    {
+      name: "MANAGER",
+      permissions: [
+        "TEAM_VIEW",
+        "EMPLOYEE_VIEW",
+        "LEAVE_APPROVE"
+      ]
+    },
+
+    {
+      name: "EMPLOYEE",
+      permissions: [
+        "SELF_PROFILE",
+        "APPLY_LEAVE"
+      ]
+    },
+
+    {
+      name: "CHATBOT_ENGINEER",
+      permissions: [
+        "CHATBOT_VIEW",
+        "CHATBOT_MANAGE_INTENTS",
+        "CHATBOT_TRAIN",
+        "CHATBOT_CONTROL",
+        "CHATBOT_VIEW_CONVERSATIONS"
+      ]
+    },
+
+    {
+      name: "CHATBOT_SUPPORT",
+      permissions: [
+        "CHATBOT_VIEW",
+        "CHATBOT_VIEW_CONVERSATIONS"
+      ]
+    }
+
+  ];
+
+  const roleMap = {};
+
+  for (const role of roles) {
+
+    let existing = await Role.findOne({
+      name: role.name,
+      companyId: company._id
+    });
+
+    if (!existing) {
+
+      existing = await Role.create({
+        name: role.name,
+        companyId: company._id,
+        permissions: role.permissions
+      });
+
+      console.log(`✅ Role created: ${role.name}`);
+
+    } else {
+
+      // 🔥 THIS IS THE FIX YOU WERE MISSING
+      existing.permissions = role.permissions;
+      await existing.save();
+
+      console.log(`♻️ Role updated: ${role.name}`);
+    }
+
+    roleMap[role.name] = existing;
   }
 
   /* =====================================
@@ -123,7 +212,7 @@ async function seedSystem() {
 
     ownerUser = await User.create({
       email: ownerEmail,
-      role: "COMPANY_OWNER",
+      roleId: roleMap["COMPANY_OWNER"]._id,
       companyId: company._id,
       employeeId: employee._id,
       accountStatus: "ACTIVE"
@@ -133,64 +222,14 @@ async function seedSystem() {
     await employee.save();
 
     console.log("✅ Company owner created");
-  }
 
-  /* =====================================
-     DEFAULT ROLES
-  ===================================== */
+  } else {
 
-  const defaultRoles = [
+    // 🔥 Ensure correct role if already exists
+    ownerUser.roleId = roleMap["COMPANY_OWNER"]._id;
+    await ownerUser.save();
 
-    {
-      name: "COMPANY_OWNER",
-      permissions: ["ALL"]
-    },
-
-    {
-      name: "HR",
-      permissions: [
-        "EMPLOYEE_CREATE",
-        "EMPLOYEE_EDIT",
-        "PAYROLL_VIEW",
-        "LEAVE_APPROVE"
-      ]
-    },
-
-    {
-      name: "MANAGER",
-      permissions: [
-        "TEAM_VIEW",
-        "LEAVE_APPROVE"
-      ]
-    },
-
-    {
-      name: "EMPLOYEE",
-      permissions: [
-        "SELF_PROFILE",
-        "APPLY_LEAVE"
-      ]
-    }
-
-  ];
-
-  for (const role of defaultRoles) {
-
-    const exists = await Role.findOne({
-      name: role.name,
-      companyId: company._id
-    });
-
-    if (!exists) {
-
-      await Role.create({
-        name: role.name,
-        companyId: company._id,
-        permissions: role.permissions
-      });
-
-      console.log(`✅ Role created: ${role.name}`);
-    }
+    console.log("♻️ Owner role updated");
   }
 
   console.log("🌱 System seed complete");

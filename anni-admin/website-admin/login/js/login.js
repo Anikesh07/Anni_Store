@@ -18,18 +18,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!form || !submitBtn) return;
 
-  /* ================= SKELETON REVEAL ================= */
+  /* ================= SKELETON ================= */
 
   const skeleton = document.getElementById("loginSkeleton");
   const container = document.getElementById("loginContainer");
 
   setTimeout(() => {
 
-    if (skeleton) skeleton.style.opacity = "0";
+    skeleton && (skeleton.style.opacity = "0");
 
     setTimeout(() => {
-
-      if (skeleton) skeleton.style.display = "none";
+      skeleton && (skeleton.style.display = "none");
 
       if (container) {
         container.classList.remove("hidden");
@@ -40,27 +39,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   }, 800);
 
-
   /* ================= AUTO REDIRECT ================= */
 
   const existingToken = sessionStorage.getItem("adminToken");
 
   if (existingToken && existingToken.length > 20) {
-
-    const overlay = document.getElementById("authLoaderOverlay");
-
-    if (overlay) {
-      overlay.classList.remove("hidden");
-      overlay.classList.add("active");
-    }
-
-    setTimeout(() => {
-      window.location.href = "../admin/dashboard.html";
-    }, LOADER_DURATION);
-
+    window.location.href = "../admin/dashboard.html";
     return;
   }
-
 
   /* ================= TOGGLE MODE ================= */
 
@@ -93,7 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   });
 
-
   /* ================= FORM SUBMIT ================= */
 
   form.addEventListener("submit", async (e) => {
@@ -124,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
 
-      /* ================= LOGIN FLOW ================= */
+      /* ================= LOGIN ================= */
 
       if (!activationMode) {
 
@@ -144,41 +129,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok) throw new Error(data.message);
 
-        /* ================= STORE SESSION ================= */
+        /* ================= STORE TOKEN ONLY ================= */
 
         sessionStorage.setItem("adminToken", data.token);
         sessionStorage.setItem("adminLoginTime", Date.now().toString());
 
-        /* 🔹 STORE USER DATA FOR DASHBOARD */
+        // 🔥 OPTIONAL (lightweight only)
         if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-        }
-
-        const overlay = document.getElementById("authLoaderOverlay");
-        const card = document.querySelector(".auth-card");
-
-        if (overlay && card) {
-
-          overlay.classList.remove("hidden");
-
-          requestAnimationFrame(() => {
-            overlay.classList.add("active");
-          });
-
-          card.style.transform = "scale(0.95)";
-          card.style.opacity = "0";
-
-          await new Promise(resolve =>
-            setTimeout(resolve, LOADER_DURATION)
-          );
+          localStorage.setItem("user", JSON.stringify({
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role
+          }));
         }
 
         window.location.href = "../admin/dashboard.html";
         return;
       }
 
-
-      /* ================= ACTIVATION FLOW ================= */
+      /* ================= SEND OTP ================= */
 
       if (!otp && !newPassword && !confirmPassword) {
 
@@ -207,6 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btnText.textContent = "ACTIVATE ACCOUNT";
         return;
       }
+
+      /* ================= VERIFY OTP ================= */
 
       if (!otp) throw new Error("Please enter OTP");
       if (!newPassword) throw new Error("Please enter new password");
@@ -270,31 +241,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   });
 
+  /* ================= PASSWORD TOGGLE ================= */
 
-  /* ================= PASSWORD VISIBILITY ================= */
-
-  const toggleIcons = document.querySelectorAll(".toggle-password");
-
-  toggleIcons.forEach(icon => {
+  document.querySelectorAll(".toggle-password").forEach(icon => {
 
     icon.addEventListener("click", () => {
 
-      const targetId = icon.getAttribute("data-target");
-      const input = document.getElementById(targetId);
+      const input = document.getElementById(icon.dataset.target);
 
       if (!input) return;
 
-      if (input.type === "password") {
-
-        input.type = "text";
-        icon.textContent = "🙈";
-
-      } else {
-
-        input.type = "password";
-        icon.textContent = "👁";
-
-      }
+      input.type = input.type === "password" ? "text" : "password";
+      icon.textContent = input.type === "password" ? "👁" : "🙈";
 
     });
 

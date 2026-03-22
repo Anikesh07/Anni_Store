@@ -614,6 +614,9 @@ try{
 
 const emp = await api.get(`/employee/${id}`);
 
+// 🔥 STORE CORRECT ID GLOBALLY (DO NOT TRUST DOM)
+window.selectedEmployeeId = emp._id;
+
 Panel.open({
 
 title:`Employee • ${emp.personal?.name || ""}`,
@@ -769,8 +772,11 @@ value="${emp.leaveBalance?.remaining || 0}">
 
 footer:`
 
+<!-- ❌ OLD: onclick="updateEmployee('${id}')"
+     ✔ FIXED: use stored ID -->
+
 <button class="btn-primary"
-onclick="updateEmployee('${id}')">
+onclick="updateEmployee()">
 Save Changes
 </button>
 
@@ -822,35 +828,36 @@ console.error("Panel failed",err);
    UPDATE EMPLOYEE
 ========================================= */
 
-window.updateEmployee=async function(id){
+window.updateEmployee = async function(){
 
 try{
 
-const payload={
+const id = window.selectedEmployeeId;
 
-personal:{
-name:document.getElementById("empName").value,
-email:document.getElementById("empEmail").value,
-phone:document.getElementById("empPhone").value,
-address:document.getElementById("empAddress").value
-},
+if (!id) {
+  showToast("Invalid employee ID", "error");
+  return;
+}
 
-professional:{
-departmentId:document.getElementById("empDepartment").value,
-employmentType:document.getElementById("empType").value,
-experienceLevel:document.getElementById("empExp").value
-},
-
-role:document.getElementById("empRole").value
-
+const payload = {
+  personal:{
+    name:document.getElementById("empName").value,
+    email:document.getElementById("empEmail").value,
+    phone:document.getElementById("empPhone").value,
+    address:document.getElementById("empAddress").value
+  },
+  professional:{
+    departmentId:document.getElementById("empDepartment").value,
+    employmentType:document.getElementById("empType").value,
+    experienceLevel:document.getElementById("empExp").value
+  },
+  role:document.getElementById("empRole").value
 };
 
 await api.put(`/employee/${id}`,payload);
 
 Panel.close();
-
 showToast("Employee updated");
-
 await loadEmployees();
 
 }catch(err){
@@ -861,6 +868,7 @@ showToast("Update failed","error");
 }
 
 };
+
 
 
 /* =========================================

@@ -1,10 +1,5 @@
 /* =========================================
    DASHBOARD CONTROLLER
-   Handles:
-   - Section switching
-   - Module loading
-   - User info
-   - Logout
 ========================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -15,193 +10,216 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let isSwitching = false;
 
-/* =========================================
-   USER INFO
-========================================= */
+  /* =========================================
+     USER INFO
+  ========================================= */
 
-let user = null;
+  let user = null;
 
 try {
-  const storedUser = localStorage.getItem("user");
-  user = storedUser ? JSON.parse(storedUser) : null;
+
+  const token = sessionStorage.getItem("adminToken");
+  const payload = JSON.parse(atob(token.split('.')[1]));
+
+  console.log("TOKEN PAYLOAD:", payload);
+
+  /* ================= SUPER ADMIN ================= */
+
+  if (!payload.employeeId) {
+
+    user = {
+      name: "Admin",
+      email: "",
+      role: payload.role || "SUPER_ADMIN"
+    };
+
+  } else {
+
+    /* ================= NORMAL USER ================= */
+
+    const emp = await api.get("/employee/me");
+
+    console.log("EMPLOYEE DATA:", emp);
+
+    user = {
+      name: emp.personal?.name || "User",
+      email: emp.personal?.email || "",
+      role: emp.user?.role || "EMPLOYEE"
+    };
+
+  }
+
 } catch (err) {
-  console.warn("Invalid user data in localStorage");
-  user = null;
+  console.error("Failed to fetch user:", err);
 }
 
-if (user) {
+  /* =========================================
+     APPLY USER DATA TO UI
+  ========================================= */
 
-  const name = user.name || user.email || "Admin";
-  const role = user.role || "ADMIN";
+  if (user) {
 
-  if (welcomeText) {
-    welcomeText.innerText = `Welcome, ${name}`;
-  }
+    const name = user.name || user.email || "Admin";
+    const role = user.role || "User";
 
-  const initials = name
-    .split(" ")
-    .map(n => n.charAt(0))
-    .join("")
-    .substring(0, 2)
-    .toUpperCase();
-
-  const userInitials = document.getElementById("userInitials");
-  const userName = document.getElementById("userName");
-  const userRole = document.getElementById("userRole");
-
-  if (userInitials) userInitials.innerText = initials;
-  if (userName) userName.innerText = name;
-  if (userRole) userRole.innerText = role;
-
-}
-
-/* =========================================
-   LOGOUT
-========================================= */
-
-const logoutBtn = document.getElementById("logoutBtn");
-
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-
-    sessionStorage.removeItem("adminToken");
-    sessionStorage.removeItem("adminLoginTime");
-    sessionStorage.removeItem("activeAdminSection");
-    localStorage.removeItem("user");
-
-    window.location.href = "/login/index.html";
-
-  });
-}
-
-
-/* =========================================
-   SECTION SWITCHER
-========================================= */
-
-async function activateSection(sectionName) {
-
-  if (!sectionName || isSwitching) return;
-
-  const current = document.querySelector(".section.active");
-  const next = document.getElementById(sectionName);
-
-  if (!next || current === next) return;
-
-  isSwitching = true;
-
-  sessionStorage.setItem("activeAdminSection", sectionName);
-
-  menuItems.forEach(item =>
-    item.classList.remove("active-menu")
-  );
-
-  const activeMenu = document.querySelector(
-    `.menu-item[data-section="${sectionName}"]`
-  );
-
-  if (activeMenu) {
-    activeMenu.classList.add("active-menu");
-  }
-
-  try {
-
-    Loader?.start();
-
-    /* CLOSE SIDE PANEL IF OPEN */
-    if (window.Panel) {
-      Panel.close();
+    if (welcomeText) {
+      welcomeText.innerText = `Welcome, ${name}`;
     }
 
-    if (current) {
+    const initials = name
+      .split(" ")
+      .map(n => n.charAt(0))
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
 
-      if (typeof Transition !== "undefined") {
-        await Transition.fadeOut(current);
+    const userInitials = document.getElementById("userInitials");
+    const userName = document.getElementById("userName");
+    const userRole = document.getElementById("userRole");
+
+    if (userInitials) userInitials.innerText = initials;
+    if (userName) userName.innerText = name;
+    if (userRole) userRole.innerText = role;
+
+  }
+
+  /* =========================================
+     LOGOUT
+  ========================================= */
+
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+
+      sessionStorage.removeItem("adminToken");
+      sessionStorage.removeItem("adminLoginTime");
+      sessionStorage.removeItem("activeAdminSection");
+      localStorage.removeItem("user");
+
+      window.location.href = "/login/index.html";
+
+    });
+  }
+
+  /* =========================================
+     SECTION SWITCHER
+  ========================================= */
+
+  async function activateSection(sectionName) {
+
+    if (!sectionName || isSwitching) return;
+
+    const current = document.querySelector(".section.active");
+    const next = document.getElementById(sectionName);
+
+    if (!next || current === next) return;
+
+    isSwitching = true;
+
+    sessionStorage.setItem("activeAdminSection", sectionName);
+
+    menuItems.forEach(item =>
+      item.classList.remove("active-menu")
+    );
+
+    const activeMenu = document.querySelector(
+      `.menu-item[data-section="${sectionName}"]`
+    );
+
+    if (activeMenu) {
+      activeMenu.classList.add("active-menu");
+    }
+
+    try {
+
+      Loader?.start();
+
+      if (window.Panel) {
+        Panel.close();
       }
 
-      current.classList.remove("active");
+      if (current) {
+
+        if (typeof Transition !== "undefined") {
+          await Transition.fadeOut(current);
+        }
+
+        current.classList.remove("active");
+      }
+
+      next.classList.add("active");
+      next.style.opacity = 0;
+
+      window.scrollTo(0, 0);
+
+      const loaderFunction =
+        window[`load${capitalize(sectionName)}Module`] || null;
+
+      if (typeof loaderFunction === "function") {
+        await loaderFunction();
+      }
+
+      if (typeof Transition !== "undefined") {
+        await Transition.fadeIn(next);
+      } else {
+        next.style.opacity = 1;
+      }
+
+    } catch (err) {
+
+      console.error("Section load error:", err);
+
+      next.innerHTML = `
+        <div class="card">
+          Failed to load ${sectionName} module.
+        </div>
+      `;
+
+    } finally {
+
+      Loader?.stop();
+      isSwitching = false;
+
     }
-
-    next.classList.add("active");
-    next.style.opacity = 0;
-
-    /* RESET SCROLL POSITION */
-    window.scrollTo(0, 0);
-
-    /* =========================================
-       LOAD MODULE DYNAMICALLY
-    ========================================= */
-
-    const loaderFunction =
-      window[`load${capitalize(sectionName)}Module`] || null;
-
-    if (typeof loaderFunction === "function") {
-      await loaderFunction();
-    }
-
-    if (typeof Transition !== "undefined") {
-      await Transition.fadeIn(next);
-    } else {
-      next.style.opacity = 1;
-    }
-
-  } catch (err) {
-
-    console.error("Section load error:", err);
-
-    next.innerHTML = `
-      <div class="card">
-        Failed to load ${sectionName} module.
-      </div>
-    `;
-
-  } finally {
-
-    Loader?.stop();
-    isSwitching = false;
 
   }
 
-}
+  /* =========================================
+     HELPER
+  ========================================= */
 
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
-/* =========================================
-   HELPER
-========================================= */
+  /* =========================================
+     MENU CLICK HANDLER
+  ========================================= */
 
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+  menuItems.forEach(item => {
 
+    item.addEventListener("click", () => {
 
-/* =========================================
-   MENU CLICK HANDLER
-========================================= */
+      const section = item.getAttribute("data-section");
 
-menuItems.forEach(item => {
+      if (section) activateSection(section);
 
-  item.addEventListener("click", () => {
-
-    const section = item.getAttribute("data-section");
-
-    if (section) activateSection(section);
+    });
 
   });
 
-});
+  /* =========================================
+     DEFAULT SECTION
+  ========================================= */
 
+  const savedSection =
+    sessionStorage.getItem("activeAdminSection");
 
-/* =========================================
-   DEFAULT SECTION
-========================================= */
+  const initialSection = savedSection || "overview";
 
-const savedSection =
-  sessionStorage.getItem("activeAdminSection");
+  await activateSection(initialSection);
 
-const initialSection = savedSection || "overview";
-
-await activateSection(initialSection);
-
-sidebar?.classList.remove("loading");
+  sidebar?.classList.remove("loading");
 
 });

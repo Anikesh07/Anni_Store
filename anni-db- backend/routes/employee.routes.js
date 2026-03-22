@@ -1,10 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-  protect,
-  allowRoles
-} = require("../services/permission.middleware");
+const {protect, checkPermission} = require("../services/permission.middleware");
 
 const employeeService = require("../services/employee.service");
 const employeeController = require("../controllers/employee.controller");
@@ -16,7 +13,7 @@ const employeeController = require("../controllers/employee.controller");
 router.post(
   "/",
   protect,
-  allowRoles("COMPANY_OWNER", "HR"),
+  checkPermission("EMPLOYEE_CREATE"),
   async (req, res) => {
     try {
       const employee = await employeeService.createEmployee(
@@ -37,9 +34,10 @@ router.post(
 router.get(
   "/",
   protect,
-  allowRoles("COMPANY_OWNER", "HR", "MANAGER"),
+  checkPermission("EMPLOYEE_VIEW"),
   employeeController.getEmployees
 );
+
 
 /* ==========================================
    GET OWN PROFILE
@@ -52,10 +50,12 @@ router.get(
       const employee = await employeeController.getOwnProfile(req.user);
       res.json(employee);
     } catch (error) {
+      console.error("GET /employee/me error:", error.message);
       res.status(400).json({ message: error.message });
     }
   }
 );
+
 
 /* ==========================================
    GET EMPLOYEE BY ID
@@ -63,7 +63,7 @@ router.get(
 router.get(
   "/:id",
   protect,
-  allowRoles("COMPANY_OWNER", "HR", "MANAGER"),
+  checkPermission("EMPLOYEE_VIEW"),
   employeeController.getEmployeeById
 );
 
@@ -73,7 +73,7 @@ router.get(
 router.put(
   "/:id",
   protect,
-  allowRoles("COMPANY_OWNER", "HR"),
+  checkPermission("EMPLOYEE_CREATE"),
   async (req, res) => {
     try {
       const updated = await employeeService.updateEmployee(
@@ -95,7 +95,7 @@ router.put(
 router.put(
   "/hire/:id",
   protect,
-  allowRoles("COMPANY_OWNER", "HR"),
+  checkPermission("EMPLOYEE_CREATE"),
   async (req, res) => {
     try {
       const updated = await employeeService.hireEmployee(
@@ -116,7 +116,7 @@ router.put(
 router.put(
   "/terminate/:id",
   protect,
-  allowRoles("COMPANY_OWNER", "HR"),
+  checkPermission("EMPLOYEE_CREATE"),
   async (req, res) => {
     try {
       const updated = await employeeService.terminateEmployee(
@@ -138,7 +138,7 @@ router.put(
 router.put(
   "/blacklist/:id",
   protect,
-  allowRoles("COMPANY_OWNER", "HR"),
+  checkPermission("EMPLOYEE_CREATE"),
   async (req, res) => {
     try {
       const updated = await employeeService.blacklistEmployee(
@@ -160,7 +160,7 @@ router.put(
 router.put(
   "/reactivate/:id",
   protect,
-  allowRoles("COMPANY_OWNER", "HR"),
+  checkPermission("EMPLOYEE_CREATE"),
   async (req, res) => {
     try {
       const updated = await employeeService.reactivateEmployee(
@@ -181,7 +181,7 @@ router.put(
 router.put(
   "/salary/:id",
   protect,
-  allowRoles("COMPANY_OWNER", "HR"),
+  checkPermission("EMPLOYEE_CREATE"),
   async (req, res) => {
     try {
       const updated = await employeeService.updateSalary(
@@ -201,7 +201,7 @@ router.put(
 router.get(
   "/team/direct",
   protect,
-  allowRoles("COMPANY_OWNER", "HR", "MANAGER"),
+  checkPermission("EMPLOYEE_VIEW"),
   async (req, res) => {
 
     const team = await employeeService.getDirectReports(
@@ -216,7 +216,7 @@ router.get(
 router.get(
   "/team/tree",
   protect,
-  allowRoles("COMPANY_OWNER", "HR", "MANAGER"),
+  checkPermission("EMPLOYEE_VIEW"),
   async (req, res) => {
 
     const team = await employeeService.getTeamTree(

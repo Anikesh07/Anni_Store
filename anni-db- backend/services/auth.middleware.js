@@ -1,3 +1,4 @@
+
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 
@@ -17,17 +18,29 @@ exports.protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Fetch fresh user from DB (important)
-    const user = await User.findById(decoded.userId);
+    // 🔥 Fetch user + populate role
+    const user = await User.findById(decoded.userId)
+      .populate("roleId");
 
     if (!user || user.accountStatus !== "ACTIVE") {
       return res.status(401).json({ message: "Invalid user" });
     }
 
+    let permissions = [];
+
+    // 🔥 SUPER_ADMIN → full access
+    if (!user.roleId) {
+      permissions = ["ADMIN_ALL"];
+    } else {
+      permissions = user.roleId.permissions || [];
+    }
+
     req.user = {
       userId: user._id,
-      role: user.role,
-      companyId: user.companyId
+      role: user.roleId ? user.roleId.name : "SUPER_ADMIN",
+      permissions: permissions,
+      companyId: user.companyId,
+      employeeId: user.employeeId   // 🔥 THIS LINE FIXES YOUR LIFE
     };
 
     next();
@@ -35,17 +48,4 @@ exports.protect = async (req, res, next) => {
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
-};
-
-/* =========================================
-   ROLE AUTHORIZATION
-========================================= */
-
-exports.allowRoles = (...allowedRoles) => {
-  return (req, res, next) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied" });
-    }
-    next();
-  };
 };

@@ -10,8 +10,6 @@ const Employee = require("../models/employee.model");
    LOGIN
 ========================================= */
 
-
-
 exports.login = async (companySlug, email, password) => {
 
   if (!email || !password) {
@@ -41,7 +39,8 @@ exports.login = async (companySlug, email, password) => {
       {
         userId: superAdmin._id,
         role: superAdmin.role,
-        companyId: null
+        companyId: null,
+        employeeId: null // ✅ FIXED (important)
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -51,6 +50,7 @@ exports.login = async (companySlug, email, password) => {
       token,
       user: {
         name: "Super Admin",
+        email: superAdmin.email,
         role: "SUPER_ADMIN",
         department: "System"
       }
@@ -96,16 +96,40 @@ exports.login = async (companySlug, email, password) => {
     throw new Error("Invalid credentials");
   }
 
+  /* ============================
+     SAFE EMPLOYEE ID EXTRACTION
+  ============================ */
+
+  let employeeId = null;
+
+  if (user.employeeId) {
+    employeeId =
+      typeof user.employeeId === "object"
+        ? String(user.employeeId._id)
+        : String(user.employeeId);
+  }
+
+  // 🔍 Debug (remove later if you want)
+  console.log("FINAL employeeId:", employeeId);
+
+  /* ============================
+     TOKEN
+  ============================ */
+
   const token = jwt.sign(
     {
       userId: user._id,
       role: user.role,
       companyId: user.companyId,
-      employeeId: user.employeeId
+      employeeId: employeeId
     },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
+
+  /* ============================
+     USER RESPONSE
+  ============================ */
 
   const employee = user.employeeId;
 
@@ -118,11 +142,13 @@ exports.login = async (companySlug, email, password) => {
     token,
     user: {
       name,
-      role: user.role,
+      email: user.email,
+      role: user.role || "EMPLOYEE",
       department
     }
   };
 };
+
 
 /* =========================================
    REQUEST OTP
@@ -219,13 +245,16 @@ exports.verifyOTP = async (companySlug, email, otp, newPassword) => {
 
   if (user.employeeId) {
 
-    const employee = await Employee.findById(user.employeeId);
+    const employeeId =
+      typeof user.employeeId === "object"
+        ? user.employeeId._id
+        : user.employeeId;
+
+    const employee = await Employee.findById(employeeId);
 
     if (employee && employee.employmentStatus === "INVITED") {
-
       employee.employmentStatus = "ACTIVE";
       employee.hiredAt = new Date();
-
       await employee.save();
     }
   }

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { protect, allowRoles } = require("../services/permission.middleware");
+const { protect, checkPermission } = require("../services/permission.middleware");
 const leaveController = require("../controllers/leave.controller");
 
 /* ==========================================
@@ -10,7 +10,7 @@ const leaveController = require("../controllers/leave.controller");
 router.post(
   "/apply",
   protect,
-  allowRoles("EMPLOYEE", "MANAGER", "HR", "COMPANY_OWNER"),
+  checkPermission("APPLY_LEAVE"),
   leaveController.applyLeave
 );
 
@@ -20,6 +20,7 @@ router.post(
 router.get(
   "/my",
   protect,
+  checkPermission("APPLY_LEAVE"), // or create LEAVE_VIEW_OWN later
   leaveController.getMyLeaves
 );
 
@@ -29,17 +30,17 @@ router.get(
 router.get(
   "/team",
   protect,
-  allowRoles("MANAGER", "HR", "COMPANY_OWNER"),
+  checkPermission("TEAM_VIEW"),
   leaveController.getTeamLeaves
 );
 
 /* ==========================================
-   REVIEW LEAVE
+   REVIEW LEAVE (Approve / Reject)
 ========================================== */
 router.put(
   "/review/:id",
   protect,
-  allowRoles("MANAGER", "HR", "COMPANY_OWNER"),
+  checkPermission("LEAVE_APPROVE"),
   leaveController.reviewLeave
 );
 
@@ -49,7 +50,7 @@ router.put(
 router.get(
   "/all",
   protect,
-  allowRoles("HR", "COMPANY_OWNER"),
+  checkPermission("LEAVE_VIEW"),
   leaveController.getAllLeaves
 );
 
@@ -59,7 +60,7 @@ router.get(
 router.put(
   "/override/:id",
   protect,
-  allowRoles("HR", "COMPANY_OWNER"),
+  checkPermission("LEAVE_APPROVE"),
   leaveController.overrideLeaveStatus
 );
 

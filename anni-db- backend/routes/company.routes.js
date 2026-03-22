@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { protect, allowRoles } = require("../services/auth.middleware");
+const { protect, checkPermission } = require("../services/permission.middleware");
 const companyService = require("../services/company.service");
 
 /* =========================================
@@ -11,7 +11,7 @@ const companyService = require("../services/company.service");
 router.post(
   "/",
   protect,
-  allowRoles("SUPER_ADMIN"),
+  checkPermission("ADMIN_ALL"),
   async (req, res) => {
     try {
       const result = await companyService.createCompany(req.body);

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { protect, allowRoles } = require("../services/permission.middleware");
+const { protect, checkPermission } = require("../services/permission.middleware");
 const payrollController = require("../controllers/payroll.controller");
 
 /* ==========================================
@@ -10,7 +10,7 @@ const payrollController = require("../controllers/payroll.controller");
 router.post(
   "/generate",
   protect,
-  allowRoles("HR", "COMPANY_OWNER"),
+  checkPermission("PAYROLL_PROCESS"),
   payrollController.generatePayroll
 );
 
@@ -20,7 +20,7 @@ router.post(
 router.put(
   "/pay/:id",
   protect,
-  allowRoles("HR", "COMPANY_OWNER"),
+  checkPermission("PAYROLL_PROCESS"),
   payrollController.markPaid
 );
 
@@ -30,6 +30,7 @@ router.put(
 router.get(
   "/my",
   protect,
+  checkPermission("SELF_PAYROLL"), // or PAYROLL_VIEW if you want simpler
   payrollController.getMyPayroll
 );
 
@@ -39,7 +40,7 @@ router.get(
 router.get(
   "/company",
   protect,
-  allowRoles("HR", "COMPANY_OWNER"),
+  checkPermission("PAYROLL_VIEW"),
   payrollController.getCompanyPayroll
 );
 

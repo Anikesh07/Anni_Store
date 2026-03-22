@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { protect, allowRoles } = require("../services/permission.middleware");
+const { protect, checkPermission } = require("../services/permission.middleware");
 const attendanceController = require("../controllers/attendance.controller");
 
 /* ==========================================
@@ -10,7 +10,7 @@ const attendanceController = require("../controllers/attendance.controller");
 router.post(
   "/clock-in",
   protect,
-  allowRoles("EMPLOYEE", "MANAGER", "HR", "COMPANY_OWNER"),
+  checkPermission("ATTENDANCE_MARK"),
   attendanceController.clockIn
 );
 
@@ -20,7 +20,7 @@ router.post(
 router.post(
   "/clock-out",
   protect,
-  allowRoles("EMPLOYEE", "MANAGER", "HR", "COMPANY_OWNER"),
+  checkPermission("ATTENDANCE_MARK"),
   attendanceController.clockOut
 );
 
@@ -30,6 +30,7 @@ router.post(
 router.get(
   "/my",
   protect,
+  checkPermission("SELF_ATTENDANCE"),
   attendanceController.getMyAttendance
 );
 
@@ -39,7 +40,7 @@ router.get(
 router.get(
   "/team",
   protect,
-  allowRoles("MANAGER", "HR", "COMPANY_OWNER"),
+  checkPermission("TEAM_VIEW"),
   attendanceController.getTeamAttendance
 );
 
@@ -49,7 +50,7 @@ router.get(
 router.get(
   "/company",
   protect,
-  allowRoles("HR", "COMPANY_OWNER"),
+  checkPermission("ATTENDANCE_VIEW"),
   attendanceController.getCompanyAttendance
 );
 

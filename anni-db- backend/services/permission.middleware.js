@@ -1,23 +1,15 @@
-const ROLE_HIERARCHY = {
-  SUPER_ADMIN: 5,
-  COMPANY_OWNER: 4,
-  HR: 3,
-  MANAGER: 2,
-  EMPLOYEE: 1
-};
-
 /* =========================================
-   AUTH CHECK
+   AUTH CHECK (REUSE)
 ========================================= */
 
 exports.protect = require("./auth.middleware").protect;
 
 
 /* =========================================
-   STRICT ROLE CHECK
+   PERMISSION CHECK (CORE RBAC)
 ========================================= */
 
-exports.allowRoles = (...allowedRoles) => {
+exports.checkPermission = (requiredPermission) => {
 
   return (req, res, next) => {
 
@@ -25,12 +17,15 @@ exports.allowRoles = (...allowedRoles) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    /* SUPER ADMIN BYPASS */
-    if (req.user.role === "SUPER_ADMIN") {
+    const permissions = req.user.permissions || [];
+
+    // 🔥 ADMIN (CEO + SUPER_ADMIN) BYPASS
+    if (permissions.includes("ADMIN_ALL")) {
       return next();
     }
 
-    if (!allowedRoles.includes(req.user.role)) {
+    // ✅ Check required permission
+    if (!permissions.includes(requiredPermission)) {
       return res.status(403).json({ message: "Access denied" });
     }
 
@@ -41,8 +36,50 @@ exports.allowRoles = (...allowedRoles) => {
 
 
 /* =========================================
-   HIERARCHY ENFORCEMENT
+   MULTIPLE PERMISSIONS (OPTIONAL)
 ========================================= */
+
+exports.checkAnyPermission = (requiredPermissions = []) => {
+
+  return (req, res, next) => {
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const permissions = req.user.permissions || [];
+
+    // 🔥 ADMIN bypass
+    if (permissions.includes("ADMIN_ALL")) {
+      return next();
+    }
+
+    const hasPermission = requiredPermissions.some(p =>
+      permissions.includes(p)
+    );
+
+    if (!hasPermission) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    next();
+  };
+
+};
+
+
+/* =========================================
+   ROLE HIERARCHY (KEEP FOR HR LOGIC ONLY)
+========================================= */
+
+const ROLE_HIERARCHY = {
+  SUPER_ADMIN: 5,
+  COMPANY_OWNER: 4,
+  COMPANY_CEO: 4,
+  HR: 3,
+  MANAGER: 2,
+  EMPLOYEE: 1
+};
 
 exports.canManageRole = (targetRole) => {
 
@@ -54,7 +91,7 @@ exports.canManageRole = (targetRole) => {
 
     const currentRole = req.user.role;
 
-    /* SUPER ADMIN CAN MANAGE ANY ROLE */
+    // 🔥 SUPER ADMIN
     if (currentRole === "SUPER_ADMIN") {
       return next();
     }
@@ -70,7 +107,6 @@ exports.canManageRole = (targetRole) => {
     }
 
     next();
-
   };
 
 };

@@ -1,6 +1,8 @@
 const Employee = require("../models/employee.model");
 const User = require("../models/user.model");
 const auditService = require("./audit.service");
+const Role = require("../models/role.model");
+
 
 
 /* =====================================================
@@ -49,36 +51,74 @@ exports.createEmployee = async (authUser, data) => {
     employmentStatus: "INVITED"
   });
 
-  /* create login user */
+//   /* create login user */
 
-  const user = await User.create({
-    email,
-    role: data.role || "EMPLOYEE",
-    companyId,
-    employeeId: employee._id,
-    accountStatus: "INVITED"
-  });
+//   const user = await User.create({
+//     email,
+//     role: data.role || "EMPLOYEE",
+//     companyId,
+//     employeeId: employee._id,
+//     accountStatus: "INVITED"
+//   });
 
-  employee.userId = user._id;
-  await employee.save();
+//   employee.userId = user._id;
+//   await employee.save();
 
-  await auditService.logAction({
-    userId: authUser.userId,
-    companyId,
-    action: "EMPLOYEE_CREATED",
-    targetType: "Employee",
-    targetId: employee._id,
-    meta: { email, role: user.role }
-  });
+//   await auditService.logAction({
+//     userId: authUser.userId,
+//     companyId,
+//     action: "EMPLOYEE_CREATED",
+//     targetType: "Employee",
+//     targetId: employee._id,
+//     meta: { email, role: user.role }
+//   });
 
-  return {
-    message: "Employee invited successfully",
-    employee,
-    user
-  };
+//   return {
+//     message: "Employee invited successfully",
+//     employee,
+//     user
+//   };
+// };
+
+
+/* create login user */
+
+// 🔥 find role from DB
+const role = await Role.findOne({
+  name: data.role || "EMPLOYEE",
+  companyId
+});
+
+if (!role) {
+  throw new Error("Role not found");
+}
+
+const user = await User.create({
+  email,
+  roleId: role._id,   // ✅ FIXED (IMPORTANT)
+  companyId,
+  employeeId: employee._id,
+  accountStatus: "INVITED"
+});
+
+employee.userId = user._id;
+await employee.save();
+
+await auditService.logAction({
+  userId: authUser.userId,
+  companyId,
+  action: "EMPLOYEE_CREATED",
+  targetType: "Employee",
+  targetId: employee._id,
+  meta: { email, role: role.name } // ✅ FIXED
+});
+
+return {
+  message: "Employee invited successfully",
+  employee,
+  user
 };
-
-
+};
 
 /* =====================================================
    UPDATE EMPLOYEE
@@ -169,13 +209,22 @@ exports.updateEmployee = async (authUser, id, body) => {
   }
 
 
-  /* ================= ROLE ================= */
+/* ================= ROLE ================= */
 
-  if (body.role !== undefined && user) {
-    user.role = body.role;
-    changes.role = body.role;
+if (body.role !== undefined && user) {
+
+  const role = await Role.findOne({
+    name: body.role,
+    companyId: authUser.companyId
+  });
+
+  if (!role) {
+    throw new Error("Role not found");
   }
 
+  user.roleId = role._id;   // ✅ CORRECT
+  changes.role = body.role;
+}  
 
   /* ================= SALARY ================= */
 
