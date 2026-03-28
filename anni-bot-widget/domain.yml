@@ -1,108 +1,33 @@
 version: "3.1"
 
 intents:
-  # Core
   - greet
   - goodbye
-  - nlu_fallback
-
-  # Product queries
   - product_price
   - product_stock
   - top_products
   - best_product
   - compare_products
-  - product_search
-
-  # Order & support
-  - order_status
   - delivery_info
   - return_policy
   - payment_methods
-  - warranty_check
-  - offers_discounts
-  - account_help
   - contact_support
   - bot_capabilities
-
-slots:
-  category:
-    type: text
-    influence_conversation: true
-    mappings:
-      - type: from_text
-
-  max_price:
-    type: float
-    influence_conversation: true
-    mappings:
-      - type: from_text
-
-  keywords:
-    type: list
-    influence_conversation: false
-    mappings:
-      - type: from_text
-
-  last_products:
-    type: list
-    influence_conversation: false
-    mappings:
-      - type: custom
-
-
-
-
-
-actions:
-  # Product actions (connected to anni-db)
-  - action_product_price
-  - action_product_stock
-  - action_top_products
-  - action_best_product
-  - action_compare_products
-  - action_compare_from_memory
-  - action_product_search
+  - offers_discounts
+  - warranty_check
+  - account_help
+  - nlu_fallback
+  - product_search
+  - compare_memory
 
 responses:
   utter_greet:
-    - text: "Hi 👋 I’m anni-bot. How can I help you today?"
-
   utter_goodbye:
-    - text: "Bye 👋 Have a great shopping day!"
-
   utter_delivery_info:
-    - text: "🚚 Delivery usually takes 2–5 business days."
-
   utter_return_policy:
-    - text: "🔁 You can return products within 7 days of delivery."
-
   utter_payment_methods:
-    - text: "💳 We accept UPI, Cards, NetBanking and Cash on Delivery."
-
-  utter_order_status:
-    - text: "📦 Your order is being processed and will reach you soon."
-
   utter_contact_support:
-    - text: "👨‍💼 Connecting you to customer support."
-
   utter_bot_capabilities:
-    - text: >
-        🤖 I can help you with product prices, stock availability,
-        best products, comparisons, delivery, payments and support.
-
   utter_offers_discounts:
-    - text: "🎉 We regularly run discounts and special offers. Check the homepage for deals!"
-
   utter_warranty_check:
-    - text: "🛡️ Warranty details depend on the product. Please check the product page."
-
   utter_account_help:
-    - text: "👤 I can help with login issues, account setup, and basic account questions."
-
-  utter_fallback:
-    - text: "😕 I didn’t understand that. Try asking about prices, best products, or comparisons."
-
-session_config:
-  session_expiration_time: 60
-  carry_over_slots_to_new_session: true

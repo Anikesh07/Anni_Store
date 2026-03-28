@@ -1,107 +1,92 @@
 version: "3.1"
-
 stories:
 
-# --------------------
-# BASIC GREETING
-# --------------------
-- story: greet user
+- story: greet path
   steps:
     - intent: greet
     - action: utter_greet
 
-# --------------------
-# PRODUCT PRICE
-# --------------------
-- story: product price query
+- story: goodbye path
+  steps:
+    - intent: goodbye
+    - action: utter_goodbye
+
+- story: product_price path
   steps:
     - intent: product_price
-    - action: action_product_price
+    - action: utter_product_price
 
-# --------------------
-# PRODUCT STOCK
-# --------------------
-- story: product stock query
+- story: product_stock path
   steps:
     - intent: product_stock
-    - action: action_product_stock
+    - action: utter_product_stock
 
-# --------------------
-# TOP PRODUCTS
-# --------------------
-- story: top products query
+- story: top_products path
   steps:
     - intent: top_products
-    - action: action_top_products
+    - action: utter_top_products
 
-# --------------------
-# BEST PRODUCT
-# --------------------
-- story: best product query
+- story: best_product path
   steps:
     - intent: best_product
-    - action: action_best_product
+    - action: utter_best_product
 
-# --------------------
-# COMPARE PRODUCTS
-# --------------------
-- story: compare products
+- story: compare_products path
   steps:
     - intent: compare_products
-    - action: action_compare_products
+    - action: utter_compare_products
 
-# --------------------
-# ORDER STATUS
-# --------------------
-- story: order status
-  steps:
-    - intent: order_status
-    - action: utter_order_status
-
-# --------------------
-# DELIVERY INFO
-# --------------------
-- story: delivery info
+- story: delivery_info path
   steps:
     - intent: delivery_info
     - action: utter_delivery_info
 
-# --------------------
-# RETURN POLICY
-# --------------------
-- story: return policy
+- story: return_policy path
   steps:
     - intent: return_policy
     - action: utter_return_policy
 
-# --------------------
-# PAYMENT METHODS
-# --------------------
-- story: payment methods
+- story: payment_methods path
   steps:
     - intent: payment_methods
     - action: utter_payment_methods
 
-# --------------------
-# CONTACT SUPPORT
-# --------------------
-- story: contact support
+- story: contact_support path
   steps:
     - intent: contact_support
     - action: utter_contact_support
 
-# --------------------
-# BOT CAPABILITIES
-# --------------------
-- story: bot capabilities
+- story: bot_capabilities path
   steps:
     - intent: bot_capabilities
     - action: utter_bot_capabilities
 
-# --------------------
-# FALLBACK
-# --------------------
-- story: fallback
+- story: offers_discounts path
+  steps:
+    - intent: offers_discounts
+    - action: utter_offers_discounts
+
+- story: warranty_check path
+  steps:
+    - intent: warranty_check
+    - action: utter_warranty_check
+
+- story: account_help path
+  steps:
+    - intent: account_help
+    - action: utter_account_help
+
+- story: nlu_fallback path
   steps:
     - intent: nlu_fallback
-    - action: utter_fallback
+    - action: utter_nlu_fallback
+
+- story: product_search path
+  steps:
+    - intent: product_search
+    - action: utter_product_search
+
+- story: compare_memory path
+  steps:
+    - intent: compare_memory
+    - action: utter_compare_memory

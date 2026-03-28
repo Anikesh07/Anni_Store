@@ -3,8 +3,6 @@ import re
 import requests
 
 from rasa_sdk import Action, Tracker
-from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.types import DomainDict
 from rasa_sdk.events import SlotSet
 
 # ==============================
@@ -38,7 +36,6 @@ def api_get(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str,
 def extract_text(tracker: Tracker) -> str:
     return tracker.latest_message.get("text", "").lower()
 
-
 def extract_keywords(text: str) -> List[str]:
     text = re.sub(r"[^\w\s]", "", text.lower())
     stopwords = {
@@ -48,34 +45,24 @@ def extract_keywords(text: str) -> List[str]:
     }
     return [w for w in text.split() if w not in stopwords and len(w) > 2]
 
-
 def extract_category(text: str) -> Optional[str]:
     keyword_map = {
-        # women
         "dress": "women's clothing",
         "gown": "women's clothing",
         "kurti": "women's clothing",
-
-        # men
         "shirt": "men's clothing",
         "tshirt": "men's clothing",
         "jacket": "men's clothing",
         "shoes": "men's clothing",
-
-        # electronics
         "phone": "electronics",
         "mobile": "electronics",
         "iphone": "electronics",
         "laptop": "electronics",
         "tv": "electronics",
         "monitor": "electronics",
-
-        # jewellery
         "ring": "jewelery",
         "bracelet": "jewelery",
         "necklace": "jewelery",
-
-        # others
         "perfume": "fragrances",
         "sofa": "furniture",
         "chair": "furniture",
@@ -87,13 +74,12 @@ def extract_category(text: str) -> Optional[str]:
             return v
     return None
 
-
 def extract_number(text: str) -> Optional[int]:
     match = re.search(r"\b(\d{2,6})\b", text)
     return int(match.group(1)) if match else None
 
 # ==============================
-# PRODUCT RANKING (CORE FIX)
+# RANKING
 # ==============================
 
 def rank_products(products: List[Dict[str, Any]], keywords: List[str]) -> List[Dict]:
@@ -107,7 +93,6 @@ def rank_products(products: List[Dict[str, Any]], keywords: List[str]) -> List[D
             if k in title:
                 score += 2
 
-        # exact phrase boost
         if " ".join(keywords) in title:
             score += 5
 
@@ -118,15 +103,14 @@ def rank_products(products: List[Dict[str, Any]], keywords: List[str]) -> List[D
     return sorted(ranked, key=lambda x: x["_score"], reverse=True)
 
 # ==============================
-# ACTION: PRODUCT PRICE
+# ACTIONS
 # ==============================
 
 class ActionProductPrice(Action):
-
     def name(self) -> str:
         return "action_product_price"
 
-    async def run(self, dispatcher, tracker, domain) -> List[Dict[str, Any]]:
+    async def run(self, dispatcher, tracker, domain):
         text = extract_text(tracker)
         keywords = extract_keywords(text)
 
@@ -134,28 +118,21 @@ class ActionProductPrice(Action):
         ranked = rank_products(products, keywords)
 
         if not ranked:
-            dispatcher.utter_message("😕 I couldn’t find the exact product you’re looking for.")
+            dispatcher.utter_message(text="😕 Product not found.")
             return []
 
         p = ranked[0]
         dispatcher.utter_message(
-            f"💰 **{p['title']}**\n"
-            f"Price: ₹{p['price']}\n"
-            f"⭐ Rating: {p.get('rating', 0)} / 5\n"
-            f"📦 Stock: {p.get('stock', 'Available')}"
+            text=f"{p['title']} → ₹{p['price']} | ⭐ {p.get('rating', 0)}"
         )
         return []
 
-# ==============================
-# ACTION: PRODUCT STOCK
-# ==============================
 
 class ActionProductStock(Action):
-
     def name(self) -> str:
         return "action_product_stock"
 
-    async def run(self, dispatcher, tracker, domain) -> List[Dict[str, Any]]:
+    async def run(self, dispatcher, tracker, domain):
         text = extract_text(tracker)
         keywords = extract_keywords(text)
 
@@ -163,187 +140,67 @@ class ActionProductStock(Action):
         ranked = rank_products(products, keywords)
 
         if not ranked:
-            dispatcher.utter_message("😕 I couldn’t find that product.")
+            dispatcher.utter_message(text="😕 Product not found.")
             return []
 
         p = ranked[0]
         dispatcher.utter_message(
-            f"📦 **{p['title']}** has **{p.get('stock', 'Available')} units** in stock."
+            text=f"{p['title']} has {p.get('stock', 'Available')} units in stock."
         )
         return []
 
-# ==============================
-# ACTION: TOP PRODUCTS
-# ==============================
-
-class ActionTopProducts(Action):
-
-    def name(self) -> str:
-        return "action_top_products"
-
-    async def run(self, dispatcher, tracker, domain) -> List[Dict[str, Any]]:
-        text = extract_text(tracker)
-        category = extract_category(text)
-        limit = extract_number(text) or 5
-
-        products = api_get(
-            f"{ANNI_DB_API}/top",
-            {"category": category, "limit": limit}
-        )
-
-        if not products:
-            dispatcher.utter_message("😕 No products found.")
-            return []
-
-        msg = "🔥 **Top Products**\n\n"
-        for i, p in enumerate(products, start=1):
-            msg += (
-                f"{i}. **{p['title']}**\n"
-                f"💰 ₹{p['price']} | ⭐ {p.get('rating', 0)}\n\n"
-            )
-
-        dispatcher.utter_message(msg)
-        return []
-
-# ==============================
-# ACTION: BEST PRODUCT
-# ==============================
-
-class ActionBestProduct(Action):
-
-    def name(self) -> str:
-        return "action_best_product"
-
-    async def run(self, dispatcher, tracker, domain) -> List[Dict[str, Any]]:
-        text = extract_text(tracker)
-        category = extract_category(text)
-        budget = extract_number(text)
-
-        products = api_get(
-            f"{ANNI_DB_API}/top",
-            {"category": category, "limit": 5, "maxPrice": budget}
-        )
-
-        if not products:
-            dispatcher.utter_message("😕 I couldn't find a best product.")
-            return []
-
-        p = products[0]
-        dispatcher.utter_message(
-            f"🏆 **Best Pick for You**\n\n"
-            f"**{p['title']}**\n"
-            f"💰 ₹{p['price']}\n"
-            f"⭐ {p.get('rating', 0)} / 5\n"
-            f"📦 Stock: {p.get('stock', 'Available')}"
-        )
-        return []
-
-# ==============================
-# ACTION: COMPARE PRODUCTS
-# ==============================
-
-class ActionCompareProducts(Action):
-
-    def name(self) -> str:
-        return "action_compare_products"
-
-    async def run(self, dispatcher, tracker, domain) -> List[Dict[str, Any]]:
-        text = extract_text(tracker)
-        parts = [p.strip() for p in text.split(" and ")]
-
-        if len(parts) < 2:
-            dispatcher.utter_message("Please mention two products to compare.")
-            return []
-
-        products = api_get(
-            f"{ANNI_DB_API}/search",
-            {"q": " ".join(parts)}
-        )
-
-        ranked = rank_products(products, extract_keywords(text))
-
-        if len(ranked) < 2:
-            dispatcher.utter_message("😕 I couldn’t find both products.")
-            return []
-
-        a, b = ranked[0], ranked[1]
-        better = a if a.get("rating", 0) >= b.get("rating", 0) else b
-
-        dispatcher.utter_message(
-            f"🔍 **Comparison**\n\n"
-            f"{a['title']} → ₹{a['price']} | ⭐ {a.get('rating', 0)}\n"
-            f"{b['title']} → ₹{b['price']} | ⭐ {b.get('rating', 0)}\n\n"
-            f"✅ **Best Choice:** {better['title']}"
-        )
-        return []
 
 class ActionProductSearch(Action):
-    
-def name(self) -> str:
-    return "action_product_search"
+    def name(self) -> str:
+        return "action_product_search"
 
-async def run(self, dispatcher, tracker, domain):
+    async def run(self, dispatcher, tracker, domain):
+        text = extract_text(tracker)
 
-    text = extract_text(tracker)
+        category = extract_category(text)
+        budget = extract_number(text)
+        keywords = extract_keywords(text)
 
-    category = extract_category(text)
-    budget = extract_number(text)
-    keywords = extract_keywords(text)
+        params = {}
 
-    params = {}
+        if category:
+            params["category"] = category
+        if budget:
+            params["maxPrice"] = budget
+        if keywords:
+            params["q"] = " ".join(keywords)
 
-    if category:
-        params["category"] = category
+        products = api_get(f"{ANNI_DB_API}/search", params)
 
-    if budget:
-        params["maxPrice"] = budget
+        if not products:
+            dispatcher.utter_message(text="😕 No products found.")
+            return []
 
-    if keywords:
-        params["q"] = " ".join(keywords)
+        msg = "🛍️ Products:\n\n"
+        for i, p in enumerate(products[:5], start=1):
+            msg += f"{i}. {p['title']} → ₹{p['price']}\n"
 
-    products = api_get(f"{ANNI_DB_API}/search", params)
+        dispatcher.utter_message(text=msg)
 
-    if not products:
-        dispatcher.utter_message("😕 I couldn't find products matching that.")
-        return []
-
-    msg = "🛍️ **Here are some products:**\n\n"
-
-    for i, p in enumerate(products[:5], start=1):
-        msg += (
-            f"{i}. **{p['title']}**\n"
-            f"💰 ₹{p['price']} | ⭐ {p.get('rating', 0)}\n\n"
-        )
-
-    dispatcher.utter_message(msg)
-
-    # SAVE PRODUCTS IN MEMORY
-    return [SlotSet("last_products", products[:5])]
+        return [SlotSet("last_products", products[:5])]
 
 
 class ActionCompareFromMemory(Action):
-    
-def name(self) -> str:
-    return "action_compare_from_memory"
+    def name(self) -> str:
+        return "action_compare_from_memory"
 
-async def run(self, dispatcher, tracker, domain):
+    async def run(self, dispatcher, tracker, domain):
+        products = tracker.get_slot("last_products")
 
-    products = tracker.get_slot("last_products")
+        if not products or len(products) < 2:
+            dispatcher.utter_message(text="Not enough products to compare.")
+            return []
 
-    if not products or len(products) < 2:
-        dispatcher.utter_message("I don't have products to compare yet.")
+        a, b = products[0], products[1]
+        better = a if a.get("rating", 0) >= b.get("rating", 0) else b
+
+        dispatcher.utter_message(
+            text=f"{a['title']} vs {b['title']} → Best: {better['title']}"
+        )
+
         return []
-
-    a = products[0]
-    b = products[1]
-
-    better = a if a.get("rating", 0) >= b.get("rating", 0) else b
-
-    dispatcher.utter_message(
-        f"🔍 **Comparison**\n\n"
-        f"{a['title']} → ₹{a['price']} | ⭐ {a.get('rating',0)}\n"
-        f"{b['title']} → ₹{b['price']} | ⭐ {b.get('rating',0)}\n\n"
-        f"🏆 **Best Choice:** {better['title']}"
-    )
-
-    return []

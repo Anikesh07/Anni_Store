@@ -193,6 +193,57 @@ async function seedSystem() {
     }
   }
 
+
+  /* =====================================
+   CHATBOT SYSTEM (DEFAULT SETUP)
+===================================== */
+
+const Intent = require("../chatbot/models/intent.model");
+const Training = require("../chatbot/models/trainingPhrase.model");
+const Response = require("../chatbot/models/response.model");
+
+// Check if chatbot already initialized
+const existingIntent = await Intent.findOne({ companyId: company._id });
+
+if (!existingIntent) {
+
+  console.log("🤖 Initializing chatbot system...");
+
+  /* =========================
+     DEFAULT INTENTS
+  ========================= */
+
+  const fallbackIntent = await Intent.create({
+    name: "fallback",
+    companyId: company._id
+  });
+
+  /* =========================
+     DEFAULT TRAINING
+  ========================= */
+
+  await Training.create({
+    text: "random text",
+    intentId: fallbackIntent._id,
+    companyId: company._id
+  });
+
+  /* =========================
+     DEFAULT RESPONSES
+  ========================= */
+
+  await Response.create({
+    intentId: fallbackIntent._id,
+    text: "Sorry, I didn't understand that. Can you rephrase?",
+    companyId: company._id
+  });
+
+  console.log("✅ Chatbot initialized");
+
+} else {
+  console.log("Chatbot already initialized");
+}
+
   console.log("🌱 System seed complete");
 
 }

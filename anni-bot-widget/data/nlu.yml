@@ -1,10 +1,5 @@
 version: "3.1"
-
 nlu:
-
-# --------------------
-# GREETINGS
-# --------------------
 - intent: greet
   examples: |
     - hi
@@ -15,7 +10,6 @@ nlu:
     - hi there
     - hello anni
     - hey bot
-
 - intent: goodbye
   examples: |
     - bye
@@ -24,10 +18,6 @@ nlu:
     - see you later
     - thanks bye
     - exit
-
-# --------------------
-# PRODUCT PRICE
-# --------------------
 - intent: product_price
   examples: |
     - price of iphone
@@ -37,10 +27,6 @@ nlu:
     - what is the price of this product
     - tell me price of laptop
     - iphone price
-
-# --------------------
-# PRODUCT STOCK
-# --------------------
 - intent: product_stock
   examples: |
     - is iphone available
@@ -49,10 +35,6 @@ nlu:
     - availability of laptop
     - do you have this item
     - is this item available now
-
-# --------------------
-# TOP PRODUCTS
-# --------------------
 - intent: top_products
   examples: |
     - top 5 bags
@@ -62,10 +44,6 @@ nlu:
     - top rated products
     - trending items
     - best products in electronics
-
-# --------------------
-# BEST PRODUCT (SMART)
-# --------------------
 - intent: best_product
   examples: |
     - best phone under 30000
@@ -75,10 +53,6 @@ nlu:
     - best product for me
     - best electronics item
     - recommend a good phone
-
-# --------------------
-# COMPARE PRODUCTS
-# --------------------
 - intent: compare_products
   examples: |
     - compare iphone and samsung
@@ -88,10 +62,6 @@ nlu:
     - compare two phones
     - iphone vs samsung
     - compare laptop and tablet
-
-# --------------------
-# DELIVERY
-# --------------------
 - intent: delivery_info
   examples: |
     - delivery time
@@ -99,10 +69,6 @@ nlu:
     - when will my order arrive
     - shipping time
     - how many days for delivery
-
-# --------------------
-# RETURNS
-# --------------------
 - intent: return_policy
   examples: |
     - return policy
@@ -110,10 +76,6 @@ nlu:
     - how to return an item
     - return process
     - refund policy
-
-# --------------------
-# PAYMENT
-# --------------------
 - intent: payment_methods
   examples: |
     - payment options
@@ -122,10 +84,6 @@ nlu:
     - payment methods available
     - is cash on delivery available
     - upi payment available
-
-# --------------------
-# SUPPORT
-# --------------------
 - intent: contact_support
   examples: |
     - contact support
@@ -134,10 +92,6 @@ nlu:
     - help me
     - I need support
     - connect me to support
-
-# --------------------
-# BOT CAPABILITIES
-# --------------------
 - intent: bot_capabilities
   examples: |
     - what can you do
@@ -145,44 +99,29 @@ nlu:
     - what services do you provide
     - what all can you do
     - how does this bot work
-
-# --------------------
-# OFFERS & WARRANTY (DOMAIN SAFE)
-# --------------------
 - intent: offers_discounts
   examples: |
     - any offers available
     - discount on products
     - current deals
     - any sale going on
-
 - intent: warranty_check
   examples: |
     - warranty for this product
     - does this item have warranty
     - warranty details
-
-# --------------------
-# ACCOUNT HELP
-# --------------------
 - intent: account_help
   examples: |
     - account problem
     - login issue
     - cannot login
     - help with my account
-
-# --------------------
-# FALLBACK
-# --------------------
 - intent: nlu_fallback
   examples: |
     - asdfghj
     - qwerty
     - blah blah
     - I don’t know what to say
-
-
 - intent: product_search
   examples: |
     - show laptops
@@ -200,7 +139,6 @@ nlu:
     - show laptops under 70000
     - laptops below 70000
     - affordable laptops
-
 - intent: compare_memory
   examples: |
     - compare first two

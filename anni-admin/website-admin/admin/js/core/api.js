@@ -21,15 +21,23 @@ async function apiRequest(url, options = {}) {
     }
   };
 
-  /* Attach token automatically */
+  /* 🔥 Attach token automatically */
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    console.warn("⚠️ No auth token found in sessionStorage");
   }
 
   /* Attach request body */
   if (options.body) {
     config.body = JSON.stringify(options.body);
   }
+
+  console.log("📡 API Request:", {
+    url: `${window.API_BASE}${url}`,
+    method: config.method,
+    hasToken: !!token
+  });
 
   try {
 
@@ -67,6 +75,8 @@ async function apiRequest(url, options = {}) {
     ============================== */
 
     if (!response.ok) {
+
+      console.error("❌ API Response Error:", data);
 
       const errorMessage =
         data.message ||
