@@ -1,17 +1,15 @@
 /* =========================================
    CHATBOT RESPONSES MODULE
-   - Manage bot replies per intent
 ========================================= */
 
 window.loadChatbotResponses = async function () {
 
   const container = document.getElementById("chatbot-tab-content");
-
   if (!container) return;
 
   const intent = window.chatbotState?.selectedIntent;
 
-  // ❌ No intent selected
+  /* ❌ NO INTENT SELECTED */
   if (!intent) {
     container.innerHTML = `
       <div class="dashboard-card chatbot-responses">
@@ -35,17 +33,15 @@ window.loadChatbotResponses = async function () {
     return;
   }
 
-  // ✅ UI
+  /* ✅ UI */
   container.innerHTML = `
     <div class="dashboard-card chatbot-responses">
 
-      <!-- HEADER -->
       <div class="chatbot-responses__header">
         <h2>💬 Responses</h2>
         <p>Intent: <strong>${intent.name}</strong></p>
       </div>
 
-      <!-- ADD RESPONSE -->
       <div class="chatbot-responses__add">
 
         <input 
@@ -59,9 +55,8 @@ window.loadChatbotResponses = async function () {
 
       </div>
 
-      <!-- LIST -->
       <div class="chatbot-responses__list" id="response-list">
-        Loading...
+        ⏳ Loading...
       </div>
 
     </div>
@@ -71,37 +66,58 @@ window.loadChatbotResponses = async function () {
   loadResponses(intent._id);
 };
 
+/* =========================================
+   LOAD RESPONSES
+========================================= */
+
 async function loadResponses(intentId) {
 
   const list = document.getElementById("response-list");
 
+  list.innerHTML = `<p>⏳ Loading...</p>`;
+
   try {
 
-    const responses = await window.api.get(`/responses/${intentId}`);
+    const res = await window.api.get(`/responses/${intentId}`);
+    const responses = Array.isArray(res) ? res : res?.data || [];
 
     if (!responses.length) {
       list.innerHTML = `<p>No responses yet</p>`;
       return;
     }
 
-    list.innerHTML = responses.map(r => `
-      <div class="chatbot-responses__item">
+    list.innerHTML = responses.map(r => {
 
-        <span>${r.text}</span>
+      const msgs = r.messages || [];
+      const display = msgs.join(", ");
 
-        <button class="delete-btn" data-id="${r._id}">
-          ✖
-        </button>
+      return `
+        <div class="chatbot-responses__item">
 
-      </div>
-    `).join("");
+          <span>${escapeHTML(display)}</span>
+
+          <button class="delete-btn" data-id="${r._id}">
+            ✖
+          </button>
+
+        </div>
+      `;
+    }).join("");
 
     bindDeleteResponse(intentId);
 
   } catch (err) {
+
+    console.error(err);
+    showNotification("❌ Failed to load responses", "error");
+
     list.innerHTML = `<p>❌ Failed to load responses</p>`;
   }
 }
+
+/* =========================================
+   ADD RESPONSE
+========================================= */
 
 function bindResponseEvents(intent) {
 
@@ -110,24 +126,34 @@ function bindResponseEvents(intent) {
     const input = document.getElementById("response-input");
     const text = input.value.trim();
 
-    if (!text) return;
+    if (!text) {
+      showNotification("⚠️ Response cannot be empty", "info");
+      return;
+    }
 
     try {
 
       await window.api.post("/responses", {
         intentId: intent._id,
-        text
+        messages: [text] // 🔥 FIXED (was text)
       });
 
       input.value = "";
 
+      showNotification("✅ Response added", "success");
+
       loadResponses(intent._id);
 
     } catch (err) {
-      alert("❌ Failed to add response");
+
+      showNotification("❌ Failed to add response", "error");
     }
   };
 }
+
+/* =========================================
+   DELETE RESPONSE
+========================================= */
 
 function bindDeleteResponse(intentId) {
 
@@ -143,14 +169,25 @@ function bindDeleteResponse(intentId) {
 
         await window.api.delete(`/responses/${id}`);
 
+        showNotification("🗑️ Response deleted", "success");
+
         loadResponses(intentId);
 
       } catch (err) {
 
-        alert("❌ Delete failed");
+        showNotification("❌ Delete failed", "error");
       }
-
     };
-
   });
+}
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function escapeHTML(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }

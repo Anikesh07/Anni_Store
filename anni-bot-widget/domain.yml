@@ -21,13 +21,3 @@ intents:
   - compare_memory
 
 responses:
-  utter_greet:
-  utter_goodbye:
-  utter_delivery_info:
-  utter_return_policy:
-  utter_payment_methods:
-  utter_contact_support:
-  utter_bot_capabilities:
-  utter_offers_discounts:
-  utter_warranty_check:
-  utter_account_help:

@@ -2,6 +2,27 @@
    CHATBOT OVERVIEW DASHBOARD
 ========================================= */
 
+
+/* =========================================
+    UPDATE BOT CONTROL BUTTONS
+========================================= */
+
+
+function updateBotButtons(isRunning) {
+
+  const startBtn = document.getElementById("start-bot");
+  const stopBtn = document.getElementById("stop-bot");
+
+  if (startBtn) startBtn.disabled = isRunning;
+  if (stopBtn) stopBtn.disabled = !isRunning;
+
+}
+
+
+/* =========================================
+    NOTIFICATIONS
+========================================= */
+
 function showNotification(message, type = "info") {
 
   let container = document.getElementById("notification-container");
@@ -145,33 +166,38 @@ let consoleInterval = null;
 
 function startLiveConsole() {
 
-  // 🔥 Always clear old interval (fix duplicate spam)
   if (consoleInterval) {
     clearInterval(consoleInterval);
   }
 
   consoleInterval = setInterval(async () => {
 
+    const box = document.getElementById("chatbot-console");
+    if (!box) return;
+
     try {
 
-      const logs = await window.api.get("/chatbot/logs", { silent: true });
+      const logs = await window.api.get("/chatbot/logs");
 
-      const box = document.getElementById("chatbot-console");
-      if (!box) return;
+      // ✅ safety check
+      if (!Array.isArray(logs)) return;
 
-      // ✅ lighter comparison (faster than JSON.stringify)
-      const newContent = logs.join("");
+      const newContent = logs.join("\n");
 
+      // ✅ prevent unnecessary re-render
       if (box.dataset.lastLogs === newContent) return;
 
       box.dataset.lastLogs = newContent;
+
+      // ✅ clear error state if recovered
+      delete box.dataset.errorShown;
+
       box.innerHTML = "";
 
       logs.forEach(log => {
 
         const line = document.createElement("div");
 
-        // 🎨 use CSS classes instead of inline styles
         if (log.includes("❌")) line.className = "log-error";
         else if (log.includes("✅")) line.className = "log-success";
         else if (log.includes("⚠️")) line.className = "log-warning";
@@ -185,21 +211,23 @@ function startLiveConsole() {
 
     } catch (err) {
 
-      console.error("❌ Live console failed:", err.message);
+      console.warn("⚠️ Console temporarily unavailable");
 
-      const box = document.getElementById("chatbot-console");
-      if (!box) return;
+      // ✅ show error ONLY ONCE (no spam)
+      if (!box.dataset.errorShown) {
 
-      const errLine = document.createElement("div");
-      errLine.className = "console-error";
-      errLine.innerText = "⚠️ Console error";
+        box.dataset.errorShown = "true";
 
-      box.appendChild(errLine);
+        const errLine = document.createElement("div");
+        errLine.className = "console-error";
+        errLine.innerText = "⚠️ Waiting for backend...";
+
+        box.appendChild(errLine);
+      }
     }
 
-  }, 4000);
+  }, 3000); // slightly faster & smoother
 }
-
 
 /* =========================================
    COPY LOGS TO CLIPBOARD
@@ -251,10 +279,11 @@ function bindOverviewEvents() {
       try {
         trainBtn.disabled = true;
         trainBtn.innerText = "⏳ Training...";
+        showNotification("🚀 Training started...", "info");
 
         const res = await window.api.post("/chatbot/train");
 
-        showNotification(res.message || "Training completed", "success");
+        showNotification(res?.message || "Training completed", "success");
 
         document.getElementById("last-trained").innerText =
           "Last trained: " + new Date().toLocaleString();
@@ -266,14 +295,7 @@ function bindOverviewEvents() {
         trainBtn.innerText = "🚀 Train Bot";
       }
     };
-  }
-
-
-function updateBotButtons(isRunning) {
-
-  document.getElementById("start-bot").disabled = isRunning;
-  document.getElementById("stop-bot").disabled = !isRunning;
-}
+  } 
 
 
 
@@ -282,7 +304,12 @@ function updateBotButtons(isRunning) {
 
   showNotification("⏳ Starting bot...", "info");
 
+  try {
   await window.api.post("/chatbot/start");
+} catch (err) {
+  showNotification("❌ Failed to start bot", "error");
+  return;
+}
 
   const success = await waitForBotState("running");
 
@@ -398,37 +425,25 @@ async function loadOverviewStats() {
 async function checkBotStatus() {
 
   const el = document.getElementById("chatbot-status");
-
   if (!el) return;
 
   try {
 
-    const res = await fetch("http://localhost:4000/api/chatbot/health", {
-      method: "GET",
-      cache: "no-cache"
-    });
+    // ✅ use your API helper (stop mixing fetch like a rebel)
+    const data = await window.api.get("/chatbot/health");
 
-    const data = await res.json();
+    const isRunning = data.status === "running";
 
-    const statusText = data.status || "❌ Unknown status";
+    // ✅ FIX: declare BEFORE using
+    const statusText = isRunning ? "🟢 Running" : "🔴 Stopped";
 
     el.innerText = statusText;
 
-    /* =========================
-       STATUS LOGIC
-    ========================= */
-
-    const isRunning = statusText.toLowerCase().includes("running");
-
-    // 🎨 Color update
+    // 🎨 color
     el.style.color = isRunning ? "#22c55e" : "#ef4444";
 
-    // 🔥 Button sync (IMPORTANT)
-    const startBtn = document.getElementById("start-bot");
-    const stopBtn = document.getElementById("stop-bot");
-
-    if (startBtn) startBtn.disabled = isRunning;
-    if (stopBtn) stopBtn.disabled = !isRunning;
+    // 🔥 button sync
+    updateBotButtons(isRunning);
 
   } catch (err) {
 
@@ -437,7 +452,7 @@ async function checkBotStatus() {
     el.innerText = "❌ Chatbot not reachable";
     el.style.color = "#ef4444";
 
-    // disable stop button when unreachable
+    // fallback button state
     const startBtn = document.getElementById("start-bot");
     const stopBtn = document.getElementById("stop-bot");
 
@@ -455,43 +470,50 @@ let statusInterval = null;
 
 function startBotStatusWatcher() {
 
-  if (statusInterval) return;
+  if (statusInterval) clearInterval(statusInterval);
 
   statusInterval = setInterval(async () => {
 
     const el = document.getElementById("chatbot-status");
+    if (!el) return;
 
     try {
 
-      const res = await fetch("http://localhost:4000/api/chatbot/health");
-      const data = await res.json();
+      // ✅ FIX: api already returns parsed JSON
+      const data = await window.api.get("/chatbot/health");
 
-      el.innerText = data.status;
+      const isRunning = data.status === "running";
 
-      const isRunning = data.status.includes("running");
+      const statusText = isRunning ? "🟢 Running" : "🔴 Stopped";
 
-      // 🎨 color update
+      el.innerText = statusText;
+
+      // 🎨 color
       el.style.color = isRunning ? "#22c55e" : "#ef4444";
 
-      // 🔥 button sync
-      document.getElementById("start-bot").disabled = isRunning;
-      document.getElementById("stop-bot").disabled = !isRunning;
+      // 🔥 button sync (clean way)
+      updateBotButtons(isRunning);
 
-    } catch {
+    } catch (err) {
+
+      console.error("❌ Status watcher failed:", err.message);
 
       el.innerText = "❌ Chatbot not reachable";
       el.style.color = "#ef4444";
 
+      const startBtn = document.getElementById("start-bot");
+      const stopBtn = document.getElementById("stop-bot");
+
+      if (startBtn) startBtn.disabled = false;
+      if (stopBtn) stopBtn.disabled = true;
     }
 
   }, 3000);
 }
 
-
 /* =========================================
     WAIT FOR BOT STATE (HELPER)
 ========================================= */
-
 
 async function waitForBotState(expectedState, timeout = 30000) {
 
@@ -501,20 +523,23 @@ async function waitForBotState(expectedState, timeout = 30000) {
   while (Date.now() - start < timeout) {
 
     try {
-      const res = await fetch("http://localhost:4000/api/chatbot/health");
-      const data = await res.json();
+
+      // ✅ FIX: DO NOT use .json()
+      const data = await window.api.get("/chatbot/health");
 
       const status = (data.status || "").toLowerCase();
 
-      if (expectedState === "running" && status.includes("running")) {
+      if (expectedState === "running" && status === "running") {
         return true;
       }
 
-      if (expectedState === "stopped" && status.includes("not")) {
+      if (expectedState === "stopped" && status === "stopped") {
         return true;
       }
 
-    } catch {}
+    } catch (err) {
+      // silent retry (fine)
+    }
 
     // ⏳ After 10 sec → show patience message
     if (!warned && Date.now() - start > 10000) {

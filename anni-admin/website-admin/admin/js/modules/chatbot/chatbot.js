@@ -1,8 +1,5 @@
 /* =========================================
    CHATBOT MAIN MODULE
-   - Renders chatbot UI
-   - Handles tab navigation
-   - Provides global navigation support
 ========================================= */
 
 window.loadChatbotModule = async function () {
@@ -20,7 +17,6 @@ window.loadChatbotModule = async function () {
 
     <div class="dashboard-card chatbot-main-card">
 
-      <!-- HEADER -->
       <div class="chatbot-header-main">
         <div>
           <h2>Chatbot Control Center</h2>
@@ -28,21 +24,21 @@ window.loadChatbotModule = async function () {
         </div>
       </div>
 
-      <!-- TAB BUTTONS -->
       <div class="chatbot-tabs">
 
         <button class="chatbot-tab-btn active" data-tab="overview">Overview</button>
         <button class="chatbot-tab-btn" data-tab="intents">Intents</button>
         <button class="chatbot-tab-btn" data-tab="training">Training</button>
-         <button class="chatbot-tab-btn" data-tab="responses">Responses</button>
+        <button class="chatbot-tab-btn" data-tab="responses">Responses</button>
         <button class="chatbot-tab-btn" data-tab="conversations">Conversations</button>
         <button class="chatbot-tab-btn" data-tab="settings">Settings</button>
         <button class="chatbot-tab-btn" data-tab="test">Test Bot</button>
-       
+
       </div>
 
-      <!-- CONTENT AREA -->
-      <div id="chatbot-tab-content" class="chatbot-content"></div>
+      <div id="chatbot-tab-content" class="chatbot-content">
+        ⏳ Loading...
+      </div>
 
     </div>
 
@@ -51,11 +47,10 @@ window.loadChatbotModule = async function () {
 
   chatbotBindTabs();
 
-  // Default tab load
-  chatbotGoTo("overview");
+  // ✅ Restore last tab (or default)
+  const lastTab = sessionStorage.getItem("chatbotActiveTab") || "overview";
+  chatbotGoTo(lastTab);
 };
-
-
 
 /* =========================================
    TAB BINDING
@@ -70,16 +65,12 @@ function chatbotBindTabs() {
     btn.addEventListener("click", () => {
 
       const tab = btn.dataset.tab;
-
       chatbotGoTo(tab);
 
     });
 
   });
-
 }
-
-
 
 /* =========================================
    SET ACTIVE TAB
@@ -89,33 +80,25 @@ function setActiveTab(tab) {
 
   document.querySelectorAll(".chatbot-tab-btn").forEach(btn => {
 
-    if (btn.dataset.tab === tab) {
-      btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
-    }
+    btn.classList.toggle("active", btn.dataset.tab === tab);
 
   });
-
 }
-
-
 
 /* =========================================
    TAB ROUTER
 ========================================= */
 
-function chatbotLoadTab(tab) {
+async function chatbotLoadTab(tab) {
 
   const map = {
     overview: window.loadChatbotOverview,
     intents: window.loadChatbotIntents,
     training: window.loadChatbotTraining,
+    responses: window.loadChatbotResponses,
     conversations: window.loadChatbotConversations,
     settings: window.loadChatbotSettings,
-    test: window.loadChatbotTest,
-    responses: window.loadChatbotResponses
-
+    test: window.loadChatbotTest
   };
 
   const container = document.getElementById("chatbot-tab-content");
@@ -130,7 +113,13 @@ function chatbotLoadTab(tab) {
   if (typeof fn === "function") {
 
     try {
-      fn();
+
+      // ⏳ loading state
+      container.innerHTML = `<p>⏳ Loading ${tab}...</p>`;
+
+      // ✅ support async modules
+      await Promise.resolve(fn());
+
     } catch (err) {
 
       console.error(`❌ Error loading ${tab}:`, err.message);
@@ -152,17 +141,16 @@ function chatbotLoadTab(tab) {
       </div>
     `;
   }
-
 }
-
-
 
 /* =========================================
    GLOBAL NAVIGATION
-   - Used by overview shortcuts
 ========================================= */
 
 window.chatbotGoTo = function (tab) {
+
+  // ✅ persist tab
+  sessionStorage.setItem("chatbotActiveTab", tab);
 
   setActiveTab(tab);
   chatbotLoadTab(tab);

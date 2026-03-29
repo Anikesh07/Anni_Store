@@ -3,42 +3,71 @@ const router = express.Router();
 
 const trainingController = require("../chatbot/controllers/training.controller");
 const { protect } = require("../services/auth.middleware");
+const mongoose = require("mongoose");
 
 /* =========================================
-   TRAINING ROUTES
+   SAFE HANDLER WRAPPER (🔥 IMPORTANT)
+========================================= */
+const safe = (fn) => (req, res, next) => {
+  if (typeof fn !== "function") {
+    console.error("❌ Route handler is undefined");
+    return res.status(500).json({ error: "Route misconfigured" });
+  }
+
+  Promise.resolve(fn(req, res, next)).catch((err) => {
+    console.error("❌ Route Error:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  });
+};
+
+/* =========================================
+   ROLE CHECK
+========================================= */
+const requireAdmin = (req, res, next) => {
+  if (req.user.role !== "SUPER_ADMIN") {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+  next();
+};
+
+/* =========================================
+   VALIDATE ID
+========================================= */
+const validateId = (param) => (req, res, next) => {
+  const value = req.params[param];
+
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    return res.status(400).json({ error: `Invalid ${param}` });
+  }
+
+  next();
+};
+
+/* =========================================
+   ROUTES
 ========================================= */
 
-// 🔍 Debug (remove later if you want to feel brave again)
-console.log("Training Controller Loaded:", Object.keys(trainingController));
+// 🔥 TRAIN BOT
+router.post("/train", protect, requireAdmin, safe(trainingController.trainBot));
 
-// 🔥 TRAIN BOT (must be ABOVE dynamic routes)
-router.post("/train", protect, trainingController.trainBot);
+// 🔍 GET TRAINING BY INTENT
+router.get(
+  "/:intentId",
+  protect,
+  validateId("intentId"),
+  safe(trainingController.getByIntent)
+);
 
-// GET training phrases by intent
-router.get("/:intentId", protect, (req, res, next) => {
-  if (!trainingController.getByIntent) {
-    console.error("❌ getByIntent is undefined");
-    return res.status(500).json({ error: "Route misconfigured: getByIntent missing" });
-  }
-  trainingController.getByIntent(req, res, next);
-});
+// ➕ CREATE TRAINING
+router.post("/", protect, requireAdmin, safe(trainingController.createTraining));
 
-// ADD training phrase
-router.post("/", protect, (req, res, next) => {
-  if (!trainingController.createTraining) {
-    console.error("❌ createTraining is undefined");
-    return res.status(500).json({ error: "Route misconfigured: createTraining missing" });
-  }
-  trainingController.createTraining(req, res, next);
-});
-
-// DELETE training phrase
-router.delete("/:id", protect, (req, res, next) => {
-  if (!trainingController.deleteTraining) {
-    console.error("❌ deleteTraining is undefined");
-    return res.status(500).json({ error: "Route misconfigured: deleteTraining missing" });
-  }
-  trainingController.deleteTraining(req, res, next);
-});
+// ❌ DELETE TRAINING
+router.delete(
+  "/:id",
+  protect,
+  requireAdmin,
+  validateId("id"),
+  safe(trainingController.deleteTraining)
+);
 
 module.exports = router;

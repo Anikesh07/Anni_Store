@@ -1,3 +1,12 @@
+process.on("uncaughtException", (err) => {
+  console.error("💥 UNCAUGHT ERROR:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("💥 PROMISE ERROR:", err);
+});
+
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -28,9 +37,8 @@ const app = express();
 =============================== */
 
 app.use(cors());
-app.use(express.json({ limit: "10mb" })); // 🔥 prevent large payload crash
+app.use(express.json({ limit: "10mb" }));
 
-/* Serve uploaded files */
 app.use("/uploads", express.static("uploads"));
 
 /* ===============================
@@ -79,7 +87,6 @@ app.use((err, req, res, next) => {
 
   console.error("❌ Server Error:", err.stack || err.message);
 
-  // 🔥 Chatbot-specific error handling
   if (req.originalUrl.includes("/api/chatbot")) {
     return res.status(500).json({
       error: "🤖 Chatbot service is currently unavailable",
@@ -101,10 +108,11 @@ const axios = require("axios");
 
 const PORT = process.env.PORT || 4000;
 
+/* ✅ FIXED: Better health check */
 async function checkChatbotHealth() {
   try {
-    await axios.get("http://localhost:5005", { timeout: 2000 });
-    console.log("🤖 Chatbot (Rasa) is running on port 5005");
+    await axios.get("http://localhost:5005/status", { timeout: 2000 });
+    console.log("🤖 Chatbot (Rasa) is running");
   } catch (err) {
     console.log("⚠️ Chatbot (Rasa) is NOT running");
   }
@@ -117,11 +125,14 @@ async function startServer() {
     await connectMongo();
     console.log("✅ MongoDB connected");
 
-    await seedSystem();
+    /* ✅ FIXED: Controlled seeding */
+    if (process.env.RUN_SEED === "true") {
+      console.log("🌱 Running seed...");
+      await seedSystem();
+    }
 
     const server = app.listen(PORT, async () => {
-      console.log(`🚀 Anni DB server running on http://localhost:${PORT}`);
-
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
       await checkChatbotHealth();
     });
 

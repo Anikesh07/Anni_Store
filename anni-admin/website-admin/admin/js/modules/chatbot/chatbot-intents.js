@@ -1,15 +1,11 @@
 /* =========================================
    CHATBOT INTENTS MODULE
-   - List intents
-   - Create intent
-   - Select intent
 ========================================= */
 
 window.chatbotState = window.chatbotState || {
   selectedIntent: null,
   intents: []
 };
-
 
 window.loadChatbotIntents = async function () {
 
@@ -23,21 +19,17 @@ window.loadChatbotIntents = async function () {
   container.innerHTML = `
     <div class="dashboard-card chatbot-intents">
 
-      <!-- HEADER -->
       <div class="chatbot-intents__header">
         <h2>🧠 Intent Manager</h2>
         <button class="btn-primary" id="add-intent-btn">+ Add Intent</button>
       </div>
 
-      <!-- BODY -->
       <div class="chatbot-intents__body">
 
-        <!-- LEFT: INTENT LIST -->
         <div class="chatbot-intents__list" id="intent-list">
-          Loading intents...
+          ⏳ Loading intents...
         </div>
 
-        <!-- RIGHT: DETAILS -->
         <div class="chatbot-intents__details" id="intent-details">
           <p>Select an intent to view details</p>
         </div>
@@ -51,19 +43,20 @@ window.loadChatbotIntents = async function () {
   loadIntents();
 };
 
-
-
 /* =========================================
-   LOAD INTENTS FROM API
+   LOAD INTENTS
 ========================================= */
 
 async function loadIntents() {
 
   const list = document.getElementById("intent-list");
 
+  list.innerHTML = `<p>⏳ Loading intents...</p>`;
+
   try {
 
-    const intents = await window.api.get("/intents");
+    const res = await window.api.get("/intents");
+    const intents = Array.isArray(res) ? res : res?.data || [];
 
     window.chatbotState.intents = intents;
 
@@ -82,17 +75,26 @@ async function loadIntents() {
 
     bindIntentClick();
 
+    // ✅ Auto select first intent
+    const first = intents[0];
+    if (first) {
+      window.chatbotState.selectedIntent = first;
+      showIntentDetails(first);
+
+      const firstEl = document.querySelector(".chatbot-intents__item");
+      if (firstEl) firstEl.classList.add("active");
+    }
+
   } catch (err) {
 
     list.innerHTML = `<p>❌ Failed to load intents</p>`;
+    showNotification("❌ Failed to load intents", "error");
     console.error(err);
   }
 }
 
-
-
 /* =========================================
-   CLICK HANDLER FOR INTENTS
+   CLICK HANDLER
 ========================================= */
 
 function bindIntentClick() {
@@ -103,13 +105,14 @@ function bindIntentClick() {
 
       const id = item.dataset.id;
 
-      // Set selected
       document.querySelectorAll(".chatbot-intents__item")
         .forEach(i => i.classList.remove("active"));
 
       item.classList.add("active");
 
       const intent = window.chatbotState.intents.find(i => i._id === id);
+
+      if (!intent) return;
 
       window.chatbotState.selectedIntent = intent;
 
@@ -120,10 +123,8 @@ function bindIntentClick() {
   });
 }
 
-
-
 /* =========================================
-   SHOW INTENT DETAILS
+   SHOW DETAILS
 ========================================= */
 
 function showIntentDetails(intent) {
@@ -148,27 +149,34 @@ function showIntentDetails(intent) {
     </div>
   `;
 
-  // Navigate to training
+  /* GO TO TRAINING */
   document.getElementById("go-training").onclick = () => {
     chatbotGoTo("training");
   };
 
-  // Delete intent
+  /* DELETE INTENT */
   document.getElementById("delete-intent").onclick = async () => {
 
     if (!confirm("Delete this intent?")) return;
 
     try {
+
       await window.api.delete(`/intents/${intent._id}`);
+
+      showNotification("🗑️ Intent deleted", "success");
+
+      window.chatbotState.selectedIntent = null;
+
       loadIntents();
-      container.innerHTML = `<p>Intent deleted</p>`;
+
+      container.innerHTML = `<p>Select an intent to view details</p>`;
+
     } catch (err) {
-      alert("❌ Delete failed");
+
+      showNotification("❌ Delete failed", "error");
     }
   };
 }
-
-
 
 /* =========================================
    ADD INTENT
@@ -182,15 +190,25 @@ function bindIntentEvents() {
 
     if (!name) return;
 
+    const cleanName = name.trim().toLowerCase();
+
+    // ✅ validation (matches backend)
+    if (!/^[a-z0-9_]+$/.test(cleanName)) {
+      showNotification("⚠️ Use lowercase, no spaces, only letters/numbers/_", "info");
+      return;
+    }
+
     try {
 
-      await window.api.post("/intents", { name });
+      await window.api.post("/intents", { name: cleanName });
+
+      showNotification("✅ Intent created", "success");
 
       loadIntents();
 
     } catch (err) {
 
-      alert("❌ Failed to create intent");
+      showNotification("❌ Failed to create intent", "error");
     }
   };
 }

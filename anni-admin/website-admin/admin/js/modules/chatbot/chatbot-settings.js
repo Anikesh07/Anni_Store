@@ -1,7 +1,5 @@
 /* =========================================
    CHATBOT SETTINGS MODULE
-   - Manage bot configuration
-   - Uses localStorage (temporary)
 ========================================= */
 
 window.loadChatbotSettings = async function () {
@@ -18,28 +16,24 @@ window.loadChatbotSettings = async function () {
   container.innerHTML = `
     <div class="dashboard-card chatbot-settings">
 
-      <!-- HEADER -->
       <div class="chatbot-settings__header">
         <h2>⚙️ Bot Settings</h2>
         <p>Control chatbot behavior and configuration</p>
       </div>
 
-      <!-- FORM -->
       <div class="chatbot-settings__form">
 
-        <!-- FALLBACK -->
         <div class="chatbot-settings__group">
           <label>Fallback Threshold</label>
           <input 
             type="number" 
             step="0.01"
             id="fallback-threshold"
-            value="${settings.fallback || 0.4}"
+            value="${settings.fallback}"
           />
           <small>Lower = more confident responses</small>
         </div>
 
-        <!-- BOT STATUS -->
         <div class="chatbot-settings__group">
           <label>Bot Status</label>
           <select id="bot-status">
@@ -48,19 +42,17 @@ window.loadChatbotSettings = async function () {
           </select>
         </div>
 
-        <!-- API URL -->
         <div class="chatbot-settings__group">
           <label>Chatbot API URL</label>
           <input 
             type="text"
             id="bot-api"
-            value="${settings.api || "http://localhost:5005"}"
+            value="${settings.api}"
           />
         </div>
 
       </div>
 
-      <!-- ACTIONS -->
       <div class="chatbot-settings__actions">
 
         <button class="btn-primary" id="save-settings">
@@ -80,30 +72,53 @@ window.loadChatbotSettings = async function () {
 };
 
 /* =========================================
-   GET SETTINGS
+   GET SETTINGS (SAFE PARSE)
 ========================================= */
 
 function getSettings() {
 
-  const data = localStorage.getItem("chatbotSettings");
+  try {
 
-  return data ? JSON.parse(data) : {
+    const data = localStorage.getItem("chatbotSettings");
+
+    if (!data) return defaultSettings();
+
+    const parsed = JSON.parse(data);
+
+    return {
+      fallback: parsed.fallback ?? 0.4,
+      status: parsed.status ?? "ON",
+      api: parsed.api ?? "http://localhost:5005"
+    };
+
+  } catch (err) {
+
+    console.error("❌ Corrupted settings, resetting...");
+    localStorage.removeItem("chatbotSettings");
+
+    return defaultSettings();
+  }
+}
+
+/* =========================================
+   DEFAULT SETTINGS
+========================================= */
+
+function defaultSettings() {
+  return {
     fallback: 0.4,
     status: "ON",
     api: "http://localhost:5005"
   };
 }
 
-
 /* =========================================
    SAVE SETTINGS
 ========================================= */
 
 function saveSettings(data) {
-
   localStorage.setItem("chatbotSettings", JSON.stringify(data));
 }
-
 
 /* =========================================
    EVENTS
@@ -111,29 +126,41 @@ function saveSettings(data) {
 
 function bindSettingsEvents() {
 
-  // Save
+  /* SAVE */
   document.getElementById("save-settings").onclick = () => {
 
-    const settings = {
-      fallback: parseFloat(document.getElementById("fallback-threshold").value),
-      status: document.getElementById("bot-status").value,
-      api: document.getElementById("bot-api").value
-    };
+    const fallback = parseFloat(document.getElementById("fallback-threshold").value);
+    const status = document.getElementById("bot-status").value;
+    const api = document.getElementById("bot-api").value.trim();
+
+    /* ✅ VALIDATION */
+
+    if (isNaN(fallback) || fallback < 0 || fallback > 1) {
+      showNotification("⚠️ Fallback must be between 0 and 1", "info");
+      return;
+    }
+
+    if (!api.startsWith("http")) {
+      showNotification("⚠️ Invalid API URL", "info");
+      return;
+    }
+
+    const settings = { fallback, status, api };
 
     saveSettings(settings);
 
-    alert("✅ Settings saved");
+    showNotification("✅ Settings saved", "success");
   };
 
-  // Reset
+  /* RESET */
   document.getElementById("reset-settings").onclick = () => {
 
     if (!confirm("Reset settings?")) return;
 
     localStorage.removeItem("chatbotSettings");
 
+    showNotification("🔄 Settings reset", "info");
+
     loadChatbotSettings();
   };
 }
-
-

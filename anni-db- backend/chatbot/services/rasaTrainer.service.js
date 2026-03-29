@@ -1,17 +1,33 @@
 const { spawn } = require("child_process");
 const path = require("path");
 
+/* 🔥 CONNECT TO TRAINING LOGGER */
 const trainingController = require("../controllers/training.controller");
+
+/* 🔥 LOGGER (REAL ONE) */
+const log = (msg) => {
+  console.log(msg);
+  if (trainingController?.addLog) {
+    trainingController.addLog(msg);
+  }
+};
+
+let isTraining = false; // 🔥 LOCK
 
 exports.trainModel = () => {
   return new Promise((resolve, reject) => {
 
-    /* =========================================
-       ✅ PATH FROM ENV
-    ========================================= */
+    /* 🔥 BLOCK MULTIPLE TRAINING */
+    if (isTraining) {
+      return reject(new Error("Training already in progress"));
+    }
+
+    isTraining = true;
+
     const rasaPath = process.env.RASA_PATH;
 
     if (!rasaPath) {
+      isTraining = false;
       return reject(new Error("RASA_PATH not defined in .env"));
     }
 
@@ -23,22 +39,11 @@ exports.trainModel = () => {
     );
 
     /* =========================================
-       LOGGER
-    ========================================= */
-    const addLog = (msg) => {
-      if (trainingController?.addLog) {
-        trainingController.addLog(msg);
-      } else {
-        console.log(msg);
-      }
-    };
-
-    /* =========================================
        START TRAINING
     ========================================= */
 
-    addLog("🚀 Training started...");
-    addLog(`📁 Path: ${rasaPath}`);
+    log("🚀 Training started...");
+    log(`📁 Path: ${rasaPath}`);
 
     const rasaProcess = spawn(
       pythonPath,
@@ -46,61 +51,66 @@ exports.trainModel = () => {
       { cwd: rasaPath }
     );
 
+    let finished = false;
+
+    const cleanup = () => {
+      isTraining = false;
+      finished = true;
+    };
+
     /* =========================================
-       TIMEOUT (🔥 IMPORTANT)
+       TIMEOUT
     ========================================= */
     const timeout = setTimeout(() => {
-      addLog("⏱️ Training timeout - killing process");
-      rasaProcess.kill();
-      reject(new Error("Training timeout"));
-    }, 5 * 60 * 1000); // 5 min
+      if (finished) return;
 
-    /* ==============================
-       STDOUT
-    ============================== */
-    rasaProcess.stdout.on("data", (data) => {
-      const msg = data.toString().trim().toLowerCase();
+      log("⏱️ Training timeout - killing process");
 
-      if (
-        msg.includes("epoch") ||
-        msg.includes("training") ||
-        msg.includes("completed") ||
-        msg.includes("saved") ||
-        msg.includes("model")
-      ) {
-        addLog(msg);
+      try {
+        rasaProcess.kill("SIGINT");
+      } catch (err) {
+        console.error("❌ Kill failed:", err.message);
       }
 
-      console.log("📤", msg);
+      cleanup();
+      reject(new Error("Training timeout"));
+    }, 5 * 60 * 1000);
+
+    /* ==============================
+       STDOUT (🔥 FIXED)
+    ============================== */
+    rasaProcess.stdout.on("data", (data) => {
+      const msg = data.toString().trim();
+
+      if (!msg) return;
+
+      // 🔥 SEND EVERYTHING TO UI
+      log("📤 " + msg);
     });
 
     /* ==============================
-       STDERR
+       STDERR (🔥 FIXED)
     ============================== */
     rasaProcess.stderr.on("data", (data) => {
-      const raw = data.toString();
-      const msg = raw.toLowerCase();
+      const msg = data.toString().trim();
 
-      if (
-        msg.includes("pkg_resources") ||
-        msg.includes("deprecationwarning") ||
-        msg.includes("sqlalchemy") ||
-        msg.includes("matplotlib")
-      ) {
-        return;
-      }
+      if (!msg) return;
 
-      addLog("⚠️ " + raw.trim());
-      console.error("⚠️", raw.trim());
+      // 🔥 SEND WARNINGS TO UI
+      log("⚠️ " + msg);
     });
 
     /* ==============================
        ERROR
     ============================== */
     rasaProcess.on("error", (err) => {
+      if (finished) return;
+
       clearTimeout(timeout);
-      addLog("❌ Failed to start training");
+      log("❌ Failed to start training");
       console.error("❌", err.message);
+
+      cleanup();
       reject(err);
     });
 
@@ -109,16 +119,21 @@ exports.trainModel = () => {
     ============================== */
     rasaProcess.on("close", (code) => {
 
+      if (finished) return;
+
       clearTimeout(timeout);
 
-      addLog(`🔚 Exit code: ${code}`);
+      log(`🔚 Exit code: ${code}`);
 
       if (code !== 0) {
-        addLog("❌ Training failed");
+        log("❌ Training failed");
+        cleanup();
         return reject(new Error("Rasa training failed"));
       }
 
-      addLog("🎉 Training completed successfully");
+      log("🎉 Training completed successfully");
+
+      cleanup();
       resolve();
     });
 

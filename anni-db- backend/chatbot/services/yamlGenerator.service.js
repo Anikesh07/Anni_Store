@@ -1,39 +1,36 @@
 const fs = require("fs");
 const path = require("path");
+const YAML = require("yaml");
 
 const Intent = require("../models/intent.model");
 const Training = require("../models/trainingPhrase.model");
 const Response = require("../models/response.model");
 
-// 🔥 optional log integration
-const trainingController = require("../controllers/training.controller");
+/* 🔥 SIMPLE LOGGER */
+const log = (msg) => console.log(msg);
 
 exports.generateFiles = async (companyId) => {
   try {
 
-    const addLog = (msg) => {
-      if (trainingController?.addLog) {
-        trainingController.addLog(msg);
-      } else {
-        console.log(msg);
-      }
-    };
+    if (!companyId) {
+      throw new Error("companyId is required");
+    }
 
     /* =========================================
        FETCH DATA
     ========================================= */
 
-    const intents = await Intent.find({ companyId });
-    const trainings = await Training.find({ companyId });
-    const responses = await Response.find({ companyId });
+    const intents = await Intent.find({ companyId }).lean();
+    const trainings = await Training.find({ companyId }).lean();
+    const responses = await Response.find({ companyId }).lean();
 
     if (!intents.length) {
-      addLog("⚠️ No intents found");
+      log("⚠️ No intents found");
       return;
     }
 
     /* =========================================
-       ✅ PATHS FROM ENV (IMPORTANT)
+       PATHS
     ========================================= */
 
     const rasaRootPath = process.env.RASA_PATH;
@@ -41,27 +38,41 @@ exports.generateFiles = async (companyId) => {
     const domainPath = path.join(rasaRootPath, "domain.yml");
 
     if (!rasaRootPath || !rasaDataPath) {
-      throw new Error("RASA_PATH or RASA_DATA_PATH missing in .env");
+      throw new Error("RASA_PATH or RASA_DATA_PATH missing");
     }
 
-    // ensure folder exists
     if (!fs.existsSync(rasaDataPath)) {
       fs.mkdirSync(rasaDataPath, { recursive: true });
     }
 
-    addLog("📦 Generating YAML files...");
+    log("📦 Generating YAML files...");
 
     /* =========================================
-       🔹 NLU
+       GROUP DATA (🔥 PERFORMANCE FIX)
+    ========================================= */
+
+    const trainingMap = {};
+    trainings.forEach(t => {
+      const key = t.intentId.toString();
+      if (!trainingMap[key]) trainingMap[key] = [];
+      trainingMap[key].push(t);
+    });
+
+    const responseMap = {};
+    responses.forEach(r => {
+      const key = r.intentId.toString();
+      if (!responseMap[key]) responseMap[key] = [];
+      responseMap[key].push(r);
+    });
+
+    /* =========================================
+       NLU
     ========================================= */
 
     let nlu = `version: "3.1"\nnlu:\n`;
 
     intents.forEach(intent => {
-
-      const phrases = trainings.filter(
-        t => t.intentId.toString() === intent._id.toString()
-      );
+      const phrases = trainingMap[intent._id.toString()] || [];
 
       if (!phrases.length) return;
 
@@ -76,7 +87,7 @@ exports.generateFiles = async (companyId) => {
     });
 
     /* =========================================
-       🔹 DOMAIN
+       DOMAIN
     ========================================= */
 
     let domain = `version: "3.1"\n\nintents:\n`;
@@ -87,26 +98,27 @@ exports.generateFiles = async (companyId) => {
 
     domain += `\nresponses:\n`;
 
-    responses.forEach(res => {
+    intents.forEach(intent => {
+      const resList = responseMap[intent._id.toString()] || [];
 
-      const intent = intents.find(
-        i => i._id.toString() === res.intentId.toString()
-      );
-
-      if (!intent) return;
+      if (!resList.length) return;
 
       domain += `  utter_${intent.name}:\n`;
 
-      res.messages.forEach(msg => {
-        const cleanMsg = (msg || "").replace(/"/g, '\\"');
-        if (cleanMsg.trim()) {
-          domain += `    - text: "${cleanMsg}"\n`;
-        }
+      resList.forEach(res => {
+        const msgs = res.messages || [res.text]; // 🔥 FIXED
+
+        msgs.forEach(msg => {
+          const cleanMsg = (msg || "").replace(/"/g, '\\"');
+          if (cleanMsg.trim()) {
+            domain += `    - text: "${cleanMsg}"\n`;
+          }
+        });
       });
     });
 
     /* =========================================
-       🔹 STORIES
+       STORIES
     ========================================= */
 
     let stories = `version: "3.1"\nstories:\n`;
@@ -121,7 +133,7 @@ exports.generateFiles = async (companyId) => {
     });
 
     /* =========================================
-       🔹 OPTIONAL RULES (SMART ADDITION)
+       RULES
     ========================================= */
 
     const rules = `version: "3.1"
@@ -133,7 +145,15 @@ rules:
 `;
 
     /* =========================================
-       🔥 WRITE FILES
+       YAML VALIDATION (🔥 CRITICAL)
+    ========================================= */
+
+    YAML.parse(nlu);
+    YAML.parse(domain);
+    YAML.parse(stories);
+
+    /* =========================================
+       WRITE FILES
     ========================================= */
 
     fs.writeFileSync(path.join(rasaDataPath, "nlu.yml"), nlu);
@@ -141,15 +161,12 @@ rules:
     fs.writeFileSync(path.join(rasaDataPath, "rules.yml"), rules);
     fs.writeFileSync(domainPath, domain);
 
-    addLog("✅ YAML files generated successfully");
+    log("✅ YAML files generated successfully");
 
   } catch (error) {
 
     console.error("❌ YAML Generation Error:", error.message);
 
-    if (trainingController?.addLog) {
-      trainingController.addLog("❌ YAML generation failed");
-      trainingController.addLog(error.message);
-    }
+    throw error; // 🔥 IMPORTANT: don't swallow error
   }
 };

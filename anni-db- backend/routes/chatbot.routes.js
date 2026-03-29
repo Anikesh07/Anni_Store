@@ -1,23 +1,32 @@
 const express = require("express");
 const router = express.Router();
 
+const axios = require("axios");
+
 const trainingController = require("../chatbot/controllers/training.controller");
 const chatbotController = require("../chatbot/controllers/chatbot.controller");
 
 const { protect } = require("../services/auth.middleware");
 
-/* =========================================
-   TRAIN BOT
-========================================= */
-router.post("/train", protect, trainingController.trainBot);
+const RASA_URL = process.env.RASA_URL;
 
 /* =========================================
-   CHAT MESSAGE
+   TRAIN BOT (🔒 PROTECTED + ROLE)
 ========================================= */
-router.post("/message", chatbotController.sendMessage);
+router.post("/train", protect, (req, res, next) => {
+  if (req.user.role !== "SUPER_ADMIN") {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+  return trainingController.trainBot(req, res, next);
+});
 
 /* =========================================
-   LIVE LOGS (FOR CONSOLE UI)
+   CHAT MESSAGE (🔒 PROTECTED)
+========================================= */
+router.post("/message", protect, chatbotController.sendMessage);
+
+/* =========================================
+   LIVE LOGS
 ========================================= */
 router.get("/logs", protect, (req, res) => {
   try {
@@ -30,24 +39,30 @@ router.get("/logs", protect, (req, res) => {
 });
 
 /* =========================================
-   BOT CONTROL
+   BOT CONTROL (🔒 ROLE PROTECTED)
 ========================================= */
 router.post("/start", protect, chatbotController.startBot);
 router.post("/stop", protect, chatbotController.stopBot);
 router.post("/restart", protect, chatbotController.restartBot);
 
 /* =========================================
-   HEALTH CHECK (FIXED 🔥)
+   HEALTH CHECK (FIXED PROPERLY)
 ========================================= */
 router.get("/health", async (req, res) => {
   try {
-    const axios = require("axios");
 
-    await axios.get("http://localhost:5005", {
+    if (!RASA_URL) {
+      return res.json({
+        success: false,
+        status: "unknown",
+        message: "⚠️ RASA_URL not configured"
+      });
+    }
+
+    await axios.get(`${RASA_URL}/status`, {
       timeout: 1500
     });
 
-    // ✅ ALWAYS RETURN 200
     return res.json({
       success: true,
       status: "running",
@@ -56,7 +71,6 @@ router.get("/health", async (req, res) => {
 
   } catch (err) {
 
-    // ❌ DO NOT THROW 500 HERE
     console.log("⚠️ Rasa not reachable:", err.code || err.message);
 
     return res.json({

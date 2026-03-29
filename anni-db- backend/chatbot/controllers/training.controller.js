@@ -2,25 +2,31 @@ const yamlService = require("../services/yamlGenerator.service");
 const rasaService = require("../services/rasaTrainer.service");
 
 /* =========================================
-   IN-MEMORY LOG STORE (SHARED)
+   IN-MEMORY LOG STORE
 ========================================= */
 
 let logs = [];
+let isTraining = false; // 🔥 LOCK
 
 /* =========================================
    LOG HELPERS
 ========================================= */
 
 function getTimestamp() {
-  return new Date().toISOString(); // 🔥 proper format
+  return new Date().toISOString();
 }
 
 function addLog(msg) {
   const time = getTimestamp();
-  logs.push(`[${time}] ${msg}`);
+  const line = `[${time}] ${msg}`;
 
-  // prevent memory leak
+  logs.push(line);
+
+  // 🔥 prevent memory explosion
   if (logs.length > 300) logs.shift();
+
+  // ALSO log to terminal (debug king move)
+  console.log(line);
 }
 
 function clearLogs() {
@@ -32,12 +38,15 @@ function getLogs() {
 }
 
 /* =========================================
-   EXPORT LOG FUNCTIONS (VERY IMPORTANT)
+   EXPORT LOG FUNCTIONS
 ========================================= */
 
 exports.addLog = addLog;
 exports.clearLogs = clearLogs;
 exports.getLogs = getLogs;
+
+// ✅ NEW: expose training status
+exports.isTraining = () => isTraining;
 
 /* =========================================
    TRAIN BOT
@@ -55,6 +64,16 @@ exports.trainBot = async (req, res) => {
       });
     }
 
+    /* 🔥 BLOCK MULTIPLE TRAINING */
+    if (isTraining) {
+      addLog("⚠️ Training already in progress");
+      return res.status(400).json({
+        error: "Training already in progress"
+      });
+    }
+
+    isTraining = true;
+
     /* =========================
        INIT LOGS
     ========================= */
@@ -66,23 +85,33 @@ exports.trainBot = async (req, res) => {
     addLog(`🏢 Company: ${companyId}`);
     addLog("====================================");
 
-    console.log("🚀 Training started");
-
     /* =========================
        STEP 1: YAML
     ========================= */
 
-    addLog("📦 Generating YAML...");
-    await yamlService.generateFiles(companyId);
-    addLog("✅ YAML generated");
+    try {
+      addLog("📦 Generating YAML...");
+      await yamlService.generateFiles(companyId);
+      addLog("✅ YAML generated successfully");
+    } catch (err) {
+      addLog("❌ YAML generation failed");
+      addLog(`📍 ${err.message}`);
+      throw new Error("YAML generation failed");
+    }
 
     /* =========================
        STEP 2: RASA TRAIN
     ========================= */
 
-    addLog("🤖 Training model...");
-    await rasaService.trainModel();
-    addLog("✅ Training completed");
+    try {
+      addLog("🤖 Training Rasa model...");
+      await rasaService.trainModel();
+      addLog("✅ Rasa training completed");
+    } catch (err) {
+      addLog("❌ Rasa training failed");
+      addLog(`📍 ${err.message}`);
+      throw new Error("Rasa training failed");
+    }
 
     /* =========================
        SUCCESS
@@ -92,12 +121,16 @@ exports.trainBot = async (req, res) => {
     addLog("🎉 TRAINING SUCCESS");
     addLog("====================================");
 
+    isTraining = false;
+
     return res.json({
       success: true,
       message: "Chatbot trained successfully"
     });
 
   } catch (err) {
+
+    isTraining = false;
 
     addLog("====================================");
     addLog("❌ TRAINING FAILED");

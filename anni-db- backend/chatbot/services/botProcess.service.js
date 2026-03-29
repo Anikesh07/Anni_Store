@@ -1,6 +1,8 @@
 const { spawn } = require("child_process");
 const path = require("path");
-const trainingController = require("../controllers/training.controller");
+
+/* 🔥 TEMP LOGGER (until you move to utils/logger.js) */
+const log = (msg) => console.log(msg);
 
 let rasaProcess = null;
 let actionProcess = null;
@@ -40,17 +42,31 @@ function filterLog(msg) {
 }
 
 /* =========================================
+   SAFE KILL
+========================================= */
+function killProcess(proc) {
+  if (!proc?.pid) return;
+
+  try {
+    process.kill(proc.pid, "SIGINT");
+  } catch (err) {
+    console.error("❌ Kill failed:", err.message);
+  }
+}
+
+/* =========================================
    START BOT
 ========================================= */
 exports.startBot = () => {
 
-  if (rasaProcess || actionProcess) {
+  /* ✅ FIXED: both must be running */
+  if (rasaProcess && actionProcess) {
     return "⚠️ Bot already running";
   }
 
   isBotReady = false;
 
-  trainingController.addLog("🚀 Starting Rasa server...");
+  log("🚀 Starting Rasa server...");
 
   rasaProcess = spawn(
     pythonPath,
@@ -58,10 +74,9 @@ exports.startBot = () => {
     { cwd: rasaPath }
   );
 
-  /* 🔥 FAIL SAFE (if bot never starts) */
   const startTimeout = setTimeout(() => {
     if (!isBotReady) {
-      trainingController.addLog("❌ Bot failed to start");
+      log("❌ Bot failed to start");
     }
   }, 8000);
 
@@ -71,12 +86,12 @@ exports.startBot = () => {
     if (!msg) return;
 
     console.log("🤖", msg);
-    trainingController.addLog(msg);
 
-    if (raw.includes("Running on")) {
+    /* ✅ FIXED detection */
+    if (raw.toLowerCase().includes("running on http")) {
       isBotReady = true;
       clearTimeout(startTimeout);
-      trainingController.addLog("🟢 Bot is LIVE on port 5005");
+      log("🟢 Bot is LIVE on port 5005");
     }
   });
 
@@ -85,19 +100,11 @@ exports.startBot = () => {
     const msg = filterLog(raw);
     if (!msg) return;
 
-    if (raw.toLowerCase().includes("error")) {
-      trainingController.addLog("❌ " + msg);
-    } else if (raw.toLowerCase().includes("warning")) {
-      trainingController.addLog("⚠️ " + msg);
-    } else {
-      trainingController.addLog(msg);
-    }
-
     console.error("⚠️", msg);
   });
 
   rasaProcess.on("close", () => {
-    trainingController.addLog("🔴 Rasa server stopped");
+    log("🔴 Rasa server stopped");
     rasaProcess = null;
     isBotReady = false;
   });
@@ -106,7 +113,7 @@ exports.startBot = () => {
      ACTION SERVER
   ========================================= */
 
-  trainingController.addLog("⚡ Starting action server...");
+  log("⚡ Starting action server...");
 
   actionProcess = spawn(
     pythonPath,
@@ -119,27 +126,17 @@ exports.startBot = () => {
     if (!msg) return;
 
     console.log("⚡", msg);
-    trainingController.addLog(msg);
   });
 
   actionProcess.stderr.on("data", (data) => {
-    const raw = data.toString();
-    const msg = filterLog(raw);
+    const msg = filterLog(data.toString());
     if (!msg) return;
-
-    if (raw.toLowerCase().includes("error")) {
-      trainingController.addLog("❌ " + msg);
-    } else if (raw.toLowerCase().includes("warning")) {
-      trainingController.addLog("⚠️ " + msg);
-    } else {
-      trainingController.addLog(msg);
-    }
 
     console.error("⚠️", msg);
   });
 
   actionProcess.on("close", () => {
-    trainingController.addLog("🔴 Action server stopped");
+    log("🔴 Action server stopped");
     actionProcess = null;
   });
 
@@ -147,7 +144,7 @@ exports.startBot = () => {
 };
 
 /* =========================================
-   STOP BOT (FIXED)
+   STOP BOT
 ========================================= */
 exports.stopBot = () => {
 
@@ -156,21 +153,19 @@ exports.stopBot = () => {
   }
 
   try {
-    if (rasaProcess?.pid) {
-      spawn("taskkill", ["/pid", rasaProcess.pid, "/f", "/t"]);
-      rasaProcess = null;
-    }
+    killProcess(rasaProcess);
+    killProcess(actionProcess);
 
-    if (actionProcess?.pid) {
-      spawn("taskkill", ["/pid", actionProcess.pid, "/f", "/t"]);
-      actionProcess = null;
-    }
+    rasaProcess = null;
+    actionProcess = null;
+
   } catch (err) {
-    console.error("❌ Kill error:", err.message);
+    console.error("❌ Stop error:", err.message);
   }
 
   isBotReady = false;
-  trainingController.addLog("🛑 Bot stopped");
+
+  log("🛑 Bot stopped");
 
   return "🛑 Bot stopped";
 };

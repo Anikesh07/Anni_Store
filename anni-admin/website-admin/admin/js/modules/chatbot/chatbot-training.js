@@ -1,7 +1,5 @@
 /* =========================================
    CHATBOT TRAINING MODULE
-   - Manage training phrases
-   - Based on selected intent
 ========================================= */
 
 window.loadChatbotTraining = async function () {
@@ -15,7 +13,7 @@ window.loadChatbotTraining = async function () {
 
   const intent = window.chatbotState?.selectedIntent;
 
-  // ❌ No intent selected
+  /* ❌ NO INTENT SELECTED */
   if (!intent) {
     container.innerHTML = `
       <div class="dashboard-card chatbot-training">
@@ -39,11 +37,10 @@ window.loadChatbotTraining = async function () {
     return;
   }
 
-  // ✅ Main UI
+  /* ✅ MAIN UI */
   container.innerHTML = `
     <div class="dashboard-card chatbot-training">
 
-      <!-- HEADER -->
       <div class="chatbot-training__header">
         <div>
           <h2>📚 Training</h2>
@@ -51,7 +48,6 @@ window.loadChatbotTraining = async function () {
         </div>
       </div>
 
-      <!-- ADD PHRASE -->
       <div class="chatbot-training__add">
 
         <input 
@@ -65,9 +61,8 @@ window.loadChatbotTraining = async function () {
 
       </div>
 
-      <!-- PHRASE LIST -->
       <div class="chatbot-training__list" id="training-list">
-        Loading...
+        ⏳ Loading...
       </div>
 
     </div>
@@ -77,19 +72,20 @@ window.loadChatbotTraining = async function () {
   loadTrainingData(intent._id);
 };
 
-
-
 /* =========================================
-   LOAD TRAINING PHRASES
+   LOAD TRAINING DATA
 ========================================= */
 
 async function loadTrainingData(intentId) {
 
   const list = document.getElementById("training-list");
 
+  list.innerHTML = `<p>⏳ Loading...</p>`;
+
   try {
 
-    const phrases = await window.api.get(`/training/${intentId}`);
+    const res = await window.api.get(`/training/${intentId}`);
+    const phrases = Array.isArray(res) ? res : res?.data || [];
 
     if (!phrases.length) {
       list.innerHTML = `<p>No training phrases yet</p>`;
@@ -99,7 +95,7 @@ async function loadTrainingData(intentId) {
     list.innerHTML = phrases.map(p => `
       <div class="chatbot-training__item">
 
-        <span>${p.text}</span>
+        <span>${escapeHTML(p.text || "")}</span>
 
         <button 
           class="delete-btn" 
@@ -114,12 +110,12 @@ async function loadTrainingData(intentId) {
 
   } catch (err) {
 
-    list.innerHTML = `<p>❌ Failed to load training data</p>`;
     console.error(err);
+    showNotification("❌ Failed to load training data", "error");
+
+    list.innerHTML = `<p>❌ Failed to load training data</p>`;
   }
 }
-
-
 
 /* =========================================
    ADD TRAINING PHRASE
@@ -132,7 +128,10 @@ function bindTrainingEvents(intent) {
     const input = document.getElementById("training-input");
     const text = input.value.trim();
 
-    if (!text) return;
+    if (!text) {
+      showNotification("⚠️ Phrase cannot be empty", "info");
+      return;
+    }
 
     try {
 
@@ -143,16 +142,16 @@ function bindTrainingEvents(intent) {
 
       input.value = "";
 
+      showNotification("✅ Training phrase added", "success");
+
       loadTrainingData(intent._id);
 
     } catch (err) {
 
-      alert("❌ Failed to add training phrase");
+      showNotification("❌ Failed to add training phrase", "error");
     }
   };
 }
-
-
 
 /* =========================================
    DELETE TRAINING PHRASE
@@ -172,14 +171,26 @@ function bindDeleteTraining(intentId) {
 
         await window.api.delete(`/training/${id}`);
 
+        showNotification("🗑️ Training phrase deleted", "success");
+
         loadTrainingData(intentId);
 
       } catch (err) {
 
-        alert("❌ Delete failed");
+        showNotification("❌ Delete failed", "error");
       }
-
     };
 
   });
+}
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function escapeHTML(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
